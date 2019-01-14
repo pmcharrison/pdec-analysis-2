@@ -19,7 +19,7 @@ library(car)  #for lmer
 library(effects) #for lmer
 library(lsmeans)#for lmer
 library(readxl)
-source("diagnostic_fcns.r")
+# source("diagnostic_fcns.r")
 library(lattice)
 library(foreign)
 library(multcomp)
@@ -37,13 +37,8 @@ library(xtable)
 library(gridExtra)
 ######
 #####load data #######
-ls()
-rm(list=ls())
-dir = "insert/directory/"
 
-setwd(dir)
-
-dat=read.table(file="all.csv",header=T, sep="\t")  # read data
+dat=read.table(file="input/response/all.csv",header=T, sep="\t")  # read data
 dat$cyc <- " "
 dat$cyc[dat$speed==1]= "TEN"
 dat$cyc[dat$speed==2]= "TEN"
@@ -126,7 +121,7 @@ a=ggplot(d[d$cond=="RANDREG",], aes(RTadj, fill=above, color=above))+ facet_grid
   scale_fill_manual(values=c("orange", "grey"))
   #ggtitle("RTs over all trials all subjects")
 drt=d
-pdf(file=paste0(dir, "PLOT_RT_hist.pdf"), 15,10)
+pdf(file="output/PLOT_RT_hist.pdf", 15,10)
 grid.arrange(a, ncol=1)
 dev.off()
 
@@ -144,7 +139,7 @@ a=ggplot(d[d$cond=="RANDREG",], aes(tone, fill=above, color=above))+ facet_grid(
   scale_color_manual(values=c("black", "black"))+
   scale_fill_manual(values=c("orange", "grey"))
 #ggtitle("RTs over all trials all subjects")
-pdf(file=paste0(dir, "PLOT_RT_hist_intones.pdf"), 15,10)
+pdf(file=paste0("output/PLOT_RT_hist_intones.pdf"), 15,10)
 grid.arrange(a, ncol=1)
 dev.off()
 
@@ -153,7 +148,7 @@ d=d[complete.cases(d), ]
 summary(d)
 f=subset(d, select= -c(correct, error, sd2pos,sd2neg,above )) #dropping columns
 
-write.table(f, file=paste0(dir, "exp_stm.txt"), row.names=T, col.names=T, sep="\t") 
+write.table(f, file=paste0("output/exp_stm.txt"), row.names=T, col.names=T, sep="\t") 
 
 
 ####END of preprocessing
@@ -180,7 +175,7 @@ b=ggplot(v2, aes(cyc, Variability,  group=interaction(cyc,tempo), fill=tempo, co
         axis.title.x = element_text(size = 12, angle = 0))+ 
   geom_text(data = means, aes(label = Variability, y =Variability + 0.1),position = position_dodge(width = 0.8), color="black")
 
-pdf(file=paste0(dir, "PLOT_RT_Variability_intones2.pdf"), 10, 10)
+pdf(file="output/PLOT_RT_Variability_intones2.pdf", 10, 10)
 grid.arrange( b, ncol=1)
 dev.off()
 
@@ -218,10 +213,6 @@ p00=ggplot(ag[ag$cond=="STEP",], aes(cyc, RTadj,  group=interaction(cyc,tempo), 
         axis.title.x = element_text(size = 12, angle = 0))+ 
   geom_text(data = means, aes(label = RTadj, y = RTadj + 0.01),position = position_dodge(width = 0.8), color="black")
 
-pdf(file=paste0(dir, "PLOT_STEPvar.pdf"), 15,7)
-grid.arrange(p00, p1, ncol=2)
-dev.off()
-
 means <- aggregate(efftone ~ cyc+tempo, ag[ag$cond=="RANDREG",], mean)
 means$efftone=round(means$efftone, 1)
 p2=ggplot(ag[ag$cond=="RANDREG",], aes(cyc, efftone,  group=interaction(cyc,tempo), fill=tempo, color=tempo, label=subj))+
@@ -240,7 +231,7 @@ p2=ggplot(ag[ag$cond=="RANDREG",], aes(cyc, efftone,  group=interaction(cyc,temp
         axis.title=element_text(size=12),legend.title = element_text(size=8),
         legend.text = element_text(size = 8))+
   geom_text(data = means, aes(label = efftone, y = efftone + 5),position = position_dodge(width = 0.8), color="black")
-pdf(file=paste0(dir,"PLOT_RT_trans.pdf"), 7,7)
+pdf(file=paste0("output/PLOT_RT_trans.pdf"), 7,7)
 grid.arrange(p2, ncol=1)
 dev.off()
 ########
@@ -255,7 +246,7 @@ b11a=ggplot(ag[ag$cond=="RANDREG",], aes(cyc, efftone, group=tempo, fill=tempo, 
   theme(axis.line = element_line(colour = "black"), axis.text=element_text(size=16),
         axis.title=element_text(size=16),legend.title = element_text(size=16),
         legend.text = element_text(size = 16))
-pdf(file=paste0(dir,"Fig1_RT_barplot.pdf"), 8,6)
+pdf(file=paste0("output/Fig1_RT_barplot.pdf"), 8,6)
 grid.arrange(b11a, ncol=1)
 dev.off()
 
@@ -288,7 +279,7 @@ p3a=ggplot(dprime, aes(cyc, dprime, group=tempo, fill=tempo, color=tempo))+theme
         axis.title=element_text(size=16),legend.title = element_text(size=16),
         legend.text = element_text(size = 16))
 
-pdf(file="Fig2_dprime.pdf", 8,6)
+pdf(file="output/Fig2_dprime.pdf", 8,6)
 grid.arrange(p3a, ncol=1)
 dev.off()
 
@@ -313,6 +304,10 @@ f <- as.data.frame(ef)
 p1=ggplot(f, aes(tempo, fit, group=cyc, color=cyc)) +
   geom_errorbar(aes(ymin=fit-se, ymax=fit+se),width=0.4) + theme_bw(base_size=12)+
   ggtitle("model estimates")
+
+pdf(file=paste0("output/PLOT_STEPvar.pdf"), 15,7)
+grid.arrange(p00, p1, ncol=2) # where was p1 defined?
+dev.off()
 
 emmeans(m1,  pairwise ~ cyc|tempo, adjust='bonferroni', type="response", lmer.df = "satterthwaite")
 

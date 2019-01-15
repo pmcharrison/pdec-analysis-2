@@ -55,7 +55,8 @@ norm_reaction_times <- function(dat, rt_baselines_1) {
   dat <- left_join(dat, rt_baselines_1, by = c("subj", "block"))
   dat %>% mutate(
     rt_norm = if_else(cond == "randreg", rt - rt_reference, rt),
-    rt_norm_tones = 1000 * rt_norm / tone_len_ms
+    rt_norm_tones_from_transition = 1000 * rt_norm / tone_len_ms,
+    rt_norm_tones_from_repeat = rt_norm_tones_from_transition - alphabet_size
   )
 }
 

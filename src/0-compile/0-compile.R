@@ -17,4 +17,4 @@ dat <- norm_reaction_times(dat, rt_baselines_1) # note: only randreg trials are 
 rt_baselines_2 <- get_rt_baselines_2(dat) # used to discard outliers; benchmarked within conditions, across subjects, across blocks
 dat <- drop_outliers(dat, rt_baselines_2, z_threshold = 2)
 regression_test(dat)
-saveRDS(dat, "dat-response.rds")
+saveRDS(dat, "output/dat-response.rds")

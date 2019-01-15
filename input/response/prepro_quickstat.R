@@ -125,12 +125,12 @@ pdf(file="output/PLOT_RT_hist.pdf", 15,10)
 grid.arrange(a, ncol=1)
 dev.off()
 
-d = d.or
-d <- ddply(d, .(cyc,tempo, condi), transform, sd2pos = mean(tone)+2*sd(tone))  # compute SD neg and pos for each cond across all subjects
-d <- ddply(d, .(cyc,tempo, condi), transform, sd2neg = mean(tone)-2*sd(tone))  
-d <- ddply(d, .(cyc,tempo, condi), transform, above = tone>=sd2neg & tone<=sd2pos )  
-d$above[d$above=="TRUE"]="<2SD"  #attribute logical if within 2SD from mean per each cond and block
-d$above[d$above=="FALSE"]="All"
+# d = d.or
+# d <- ddply(d, .(cyc,tempo, condi), transform, sd2pos = mean(tone)+2*sd(tone))  # compute SD neg and pos for each cond across all subjects
+# d <- ddply(d, .(cyc,tempo, condi), transform, sd2neg = mean(tone)-2*sd(tone))  
+# d <- ddply(d, .(cyc,tempo, condi), transform, above = tone>=sd2neg & tone<=sd2pos )  
+# d$above[d$above=="TRUE"]="<2SD"  #attribute logical if within 2SD from mean per each cond and block
+# d$above[d$above=="FALSE"]="All"
 a=ggplot(d[d$cond=="RANDREG",], aes(tone, fill=above, color=above))+ facet_grid(~cyc*tempo)+
   geom_histogram(breaks=seq(-20,70, by=4))+theme_bw()+
   theme(axis.line = element_line(colour = "black"), axis.text=element_text(size=12),

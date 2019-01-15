@@ -1,2 +1,0 @@
-- discard participant 7
-- discard RTs that are more than 2 SD from the condition / block mean?

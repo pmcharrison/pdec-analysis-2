@@ -1,21 +1,37 @@
 model_condition <- function(alphabet_size, tone_len_ms, dat,
                             ppm_spec, change_point_spec, 
                             alphabet, downsample = NULL) {
-  res <- with_seed(1, {
+  with_seed(1, {
     trials <- get_trials(alphabet_size, tone_len_ms, dat, downsample)
-    list(info = as.list(environment())[c("alphabet_size", "tone_len_ms", 
-                                         "ppm_spec", "change_point_spec",
-                                         "alphabet",
-                                         "downsample")],
-         res = plyr::alply(trials, 1, model_trial, 
-                           ppm_spec = ppm_spec, 
-                           change_point_spec = change_point_spec,
-                           alphabet = alphabet,
-                           .progress = "text")
+    flog.info(glue("Analysing {nrow(trials)} trials with ", 
+                   "alphabet_size = {alphabet_size} and ",
+                   "tone_len_ms = {tone_len_ms}..."))
+    out <- list(
+      info = as.list(environment())[c("alphabet_size", "tone_len_ms", 
+                                      "ppm_spec", "change_point_spec",
+                                      "alphabet",
+                                      "downsample")],
+      res = plyr::alply(trials, 1, model_trial, 
+                        ppm_spec = ppm_spec, 
+                        change_point_spec = change_point_spec,
+                        alphabet = alphabet,
+                        .progress = "text") %>% unname()
     )
+    attr(out$res, "split_type") <- NULL
+    attr(out$res, "split_labels") <- NULL
+    class(out) <- c("condition_analysis", class(out))
+    out
   })
-  class(res) <- c("condition_analysis", class(res))
-  res
+}
+
+print.condition_analysis <- function(x, ...) {
+  cat(
+    "An object of class 'condition_analysis':\n",
+    "- alphabet size = ", x$info$alphabet_size, "\n",
+    "- tone_len_ms = ", x$info$tone_len_ms, "\n",
+    "- num sequences = ", length(x$res), "\n",
+    sep = ""
+  )
 }
 
 get_trials <- function(alphabet_size, tone_len_ms, dat, downsample) {
@@ -29,3 +45,4 @@ get_trials <- function(alphabet_size, tone_len_ms, dat, downsample) {
     sample_n(candidates, size = downsample, replace = FALSE)
   }
 }
+

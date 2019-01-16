@@ -1,4 +1,4 @@
-get_change_point_spec <- function(method = "Lepage",
+get_change_point_spec <- function(method = "Mann-Whitney",
                                   t1_error_rate = 10000,
                                   startup = 20) {
   as.list(environment())
@@ -30,6 +30,9 @@ model_trial <- function(trial,
   res
 }
 
+R.utils::mkdirs("cache/model_trial")
+model_trial <- memoise(model_trial, cache = cache_filesystem("cache/model_trial"))
+
 change_point_trial <- function(x, transition, alphabet_size, spec) {
   cp <- cpm::detectChangePoint(x, 
                                cpmType = spec$method, 
@@ -56,8 +59,6 @@ ppm_trial <- function(stim, alphabet_size, tone_len_ms, ppm_spec, alphabet) {
                           save_distribution = FALSE, 
                           options = ppm_options_from_ppm_spec(ppm_spec))
 }
-# ppm_trial <- memoise(ppm_trial, cache = cache_filesystem("cache/ppm_trial"))
-
 
 plot.trial_analysis <- function(x, ...) {
   p <- x$profile %>% 

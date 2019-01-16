@@ -1,4 +1,4 @@
-get_subj_rt <- function(dat) {
+get_subj_summary <- function(dat) {
   dat %>% 
     filter(cond == "randreg" & response == "hit") %>% 
     group_by(alphabet_size, tone_len_ms) %>% 

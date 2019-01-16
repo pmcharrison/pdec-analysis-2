@@ -41,12 +41,13 @@ change_point_trial <- function(x, transition, alphabet_size, spec) {
   cp_stat <- rep(as.numeric(NA), times = length(x))
   cp_stat[seq_along(cp$Ds)] <- cp$Ds
   cp_stat[seq_len(spec$startup - 1L)] <- as.numeric(NA)
-  list(
+  res <- list(
     statistic = cp_stat,
     change_detected = cp$changeDetected,
-    pos_when_change_detected = cp$detectionTime,
-    lag_tones = cp$detectionTime - (transition + alphabet_size)
+    pos_when_change_detected = if (cp$changeDetected) cp$detectionTime else as.integer(NA)
   )
+  res$lag_tones <- res$pos_when_change_detected - (transition + alphabet_size)
+  res
 }
 
 ppm_trial <- function(stim, alphabet_size, tone_len_ms, ppm_spec, alphabet) {

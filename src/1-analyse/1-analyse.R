@@ -4,6 +4,7 @@ library(futile.logger)
 library(memoise)
 library(glue)
 library(withr)
+library(beepr)
 loadNamespace("R.utils")
 loadNamespace("plyr")
 theme_set(theme_classic())
@@ -13,8 +14,23 @@ for (f in list.files("src/1-analyse/functions/", full.names = TRUE))
 
 dat <- readRDS("output/dat-response.rds")
 
-model_detail <- model(dat = dat, downsample = 2)
+model_detail <- model(dat = dat, downsample = 5)
 model_summary <- summarise_models(model_detail)
 subj_summary <- get_subj_summary(dat)
 combined_summary <- get_combined_summary(model_summary, subj_summary)
 print(plot(combined_summary))
+
+if (FALSE) {
+  View(model_summary)
+  model_detail %>% 
+    filter(grepl("PPM4", label)) %>% 
+    {.$res[[1]]} %>%
+    filter(alphabet_size == 20 & tone_len_ms == 25) %>% 
+    pull(detail) %>%
+    {.[[1]]} %>% 
+    {.$res[[1]]} %>% 
+    {.$profile} %>% View
+  plot
+}
+
+beep(1)

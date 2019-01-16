@@ -1,8 +1,10 @@
 get_ppm_spec <- function() {
   tribble(
-    ~ label,             ~ buffer_len, ~ stm_half_life, ~ stm_rate, ~ ltm_rate, ~ noise,
-    "Original PPM",       Inf,            Inf,           1,            0,        0,
-    "PPM with noise",     Inf,            Inf,           1,            0,        0.1
+    ~ label,                 ~ buffer_len,   ~ stm_half_life, ~ stm_rate, ~ ltm_rate, ~ noise,
+    "PPM1: Original",        Inf,            Inf,             1,          0,          0,
+    "PPM2: + Noise",         Inf,            Inf,             1,          0,          0.75,
+    # "PPM3: + Memory decay",  0,            0.15,               1,          0,        0.75,
+    "PPM4: + Memory buffer", 15L,            0.8,               1,          0,        1
     # "stm_rate",          Inf,            Inf,           0.1,          0,        0,
     # "stm_rate_noise",    Inf,            Inf,           0.1,          0,        1,
     # "decay",             0,              0.5,           1,            0,        1,

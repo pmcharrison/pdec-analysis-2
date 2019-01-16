@@ -37,5 +37,8 @@ read_stim_desc_file <- function(x) {
       speed_i = speed_alphabet,
       cond_i = condition,
       tone_num = toneNum
-    )
+    ) %>% 
+    mutate(transition = if_else(transition == 0,
+                                as.integer(NA), 
+                                transition))
 }

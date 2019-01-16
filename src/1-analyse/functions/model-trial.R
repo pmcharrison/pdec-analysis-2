@@ -4,33 +4,25 @@ get_change_point_spec <- function(method = "Lepage",
   as.list(environment())
 }
 
-model_trial <- function(trial, ppm_spec, change_point_spec, alphabet,  ...) {
-  UseMethod("model_trial")
-}
-
-model_trial.data.frame <- function(trial, ppm_spec, change_point_spec, alphabet, ...) {
-  stopifnot(nrow(trial) == 1L)
-  tones <- trial$stim[[1]]$tone
-  model_trial(tones, ppm_spec, change_point_spec, alphabet,
-              alphabet_size = trial$alphabet_size,
-              tone_len_ms = trial$tone_len_ms,
-              transition = trial$transition)
-}
-
-model_trial.numeric <- function(trial, 
-                                ppm_spec,
-                                change_point_spec,
-                                alphabet,
-                                alphabet_size, 
-                                tone_len_ms,
-                                transition,
-                                ...) {
+model_trial <- function(trial, 
+                        ppm_spec,
+                        change_point_spec,
+                        alphabet,
+                        ...) {
+  stopifnot(
+    is.data.frame(trial),
+    nrow(trial) == 1L
+  )
   info <- as.list(environment())
-  profile <- ppm_trial(stim, alphabet_size, tone_len_ms, ppm_spec, alphabet)
+  profile <- ppm_trial(trial$stim[[1]], 
+                       alphabet_size = trial$alphabet_size, 
+                       tone_len_ms = trial$tone_len_ms, 
+                       ppm_spec = ppm_spec, 
+                       alphabet = alphabet)
   change_point <- change_point_trial(profile$information_content,
-                                     transition,
-                                     alphabet_size,
-                                     change_point_spec)
+                                     transition = trial$transition,
+                                     alphabet_size = trial$alphabet_size,
+                                     spec = change_point_spec)
   res <- list(info = info,
               profile = profile,
               change_point = change_point)
@@ -89,12 +81,13 @@ plot.trial_analysis <- function(x, ...) {
     ggtitle(glue("Lag = {x$change_point$lag_tones} tones")) +
     theme_classic()
   
-  if (!is.na(x$info$transition))
-    p <- p + geom_vline(xintercept = x$info$transition + x$info$alphabet_size)
+  if (!is.na(x$info$trial$transition))
+    p <- p + geom_vline(xintercept = x$info$trial$transition + 
+                          x$info$trial$alphabet_size)
   
   if (x$change_point$change_detected)
     p <- p + geom_vline(xintercept = x$change_point$pos_when_change_detected,
-                         colour = "red", linetype = "dashed")
+                        colour = "red", linetype = "dashed")
   
   p
 }

@@ -35,9 +35,15 @@ print.condition_analysis <- function(x, ...) {
 }
 
 get_trials <- function(alphabet_size, tone_len_ms, dat, downsample) {
-  candidates <- dat %>% filter(alphabet_size == !!alphabet_size &
-                                 tone_len_ms == !!tone_len_ms &
-                                 cond == "randreg")
+  fake_tone_len_ms <- TRUE
+  # if (fake_tone_len_ms) warning("Faking tone length")
+  candidates <- dat %>% filter(
+    alphabet_size == !!alphabet_size &
+      (fake_tone_len_ms | (tone_len_ms == !!tone_len_ms)) &
+      cond == "randreg"
+  )
+  if (fake_tone_len_ms) candidates$tone_len_ms <- tone_len_ms
+
   stopifnot(nrow(candidates) > 0L)
   if (is.null(downsample)) {
     candidates

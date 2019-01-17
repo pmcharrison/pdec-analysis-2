@@ -14,7 +14,7 @@ for (f in list.files("src/1-analyse/functions/", full.names = TRUE))
 
 dat <- readRDS("output/dat-response.rds")
 
-model_detail <- model(dat = dat, downsample = 5)
+model_detail <- model(dat = dat, downsample = 50)
 model_summary <- summarise_models(model_detail)
 subj_summary <- get_subj_summary(dat)
 combined_summary <- get_combined_summary(model_summary, subj_summary)
@@ -23,14 +23,14 @@ print(plot(combined_summary))
 if (FALSE) {
   View(model_summary)
   model_detail %>% 
-    filter(grepl("PPM4", label)) %>% 
+    filter(grepl("Y", label)) %>% 
     {.$res[[1]]} %>%
-    filter(alphabet_size == 20 & tone_len_ms == 25) %>% 
+    filter(alphabet_size == 20 & tone_len_ms == 75) %>% 
     pull(detail) %>%
     {.[[1]]} %>% 
-    {.$res[[1]]} %>% 
-    {.$profile} %>% View
+    {.$res[[3]]} %>% plot
+    # {.$profile} %>% View
   plot
 }
 
-beep(1)
+beep(4)

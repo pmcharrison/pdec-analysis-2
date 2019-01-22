@@ -1,0 +1,7 @@
+label,buffer_type,buffer_len,stm_half_life,stm_rate,ltm_rate,noise,order_bound
+"1st-order, no decay",NA,0,Inf,1,1,0,1
+"PPM, no decay",NA,0,Inf,1,1,0,10
+"1st-order, exp. decay",NA,0,0.04,1,0.35,0.5,1
+"PPM, exp. decay",NA,0,0.04,1,0.35,0.5,10
+"PPM, time buffer, exp. decay",time,0.75,0.04,1,0.35,0.5,10
+"PPM, item buffer, exp. decay",item,18,0.04,1,0.35,0.5,10

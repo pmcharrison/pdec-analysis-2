@@ -4,6 +4,7 @@ model_conditions <- function(ppm_spec,
                              alphabet, 
                              downsample) {
   flog.info(glue("Applying PPM variant '{ppm_spec$label}'..."))
+  ppm_spec <- as.list(ppm_spec)
   ppm_spec$label <- NULL
   cond <- get_cond(dat)
   cond %>% 

@@ -86,7 +86,7 @@ regression_test <- function(dat) {
     arrange(subj, block, trial_n) %>% 
     select(subj, block, trial_n, cond_i, rt, d_prime, rt_norm)
   y <- read.delim("archive/roberta-outputs/exp_stm.txt") %>% 
-    as.tibble %>% 
+    as_tibble %>% 
     arrange(subj, block, trialN) %>% 
     select(subj, block, trialN, condi, RTs, dprime, RTadj) %>% 
     rename(trial_n = trialN, cond_i = condi, rt = RTs, d_prime = dprime, rt_norm = RTadj)

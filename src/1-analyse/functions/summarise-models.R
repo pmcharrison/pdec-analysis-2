@@ -1,7 +1,7 @@
 summarise_models <- function(y) {
   res <- map(seq_len(nrow(y)),
       ~ cbind(y[., ] %>% select(- res),
-              y$res[[.]]) %>% as.tibble) %>% 
+              y$res[[.]]) %>% as_tibble) %>% 
     bind_rows() %>% 
     select(- detail) %>% 
     mutate(

@@ -31,7 +31,7 @@ read_stim_desc_file <- function(x) {
     map(as.integer) %>% 
     do.call(c, .) %>% 
     matrix(ncol = 5L, byrow = TRUE) %>% 
-    as.tibble() %>% 
+    as_tibble() %>% 
     set_names(head) %>% 
     rename(
       speed_i = speed_alphabet,

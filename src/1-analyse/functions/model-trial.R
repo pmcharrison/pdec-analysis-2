@@ -1,3 +1,6 @@
+library(memoise)
+library(glue)
+
 get_change_point_spec <- function(method = "Mann-Whitney",
                                   t1_error_rate = 10000,
                                   startup = 20) {
@@ -61,35 +64,64 @@ ppm_trial <- function(stim, alphabet_size, tone_len_ms, ppm_spec, alphabet) {
                           options = ppm_options_from_ppm_spec(ppm_spec))
 }
 
-plot.trial_analysis <- function(x, ...) {
+plot.trial_analysis <- function(x, lag = TRUE, ...) {
   p <- x$profile %>% 
-    mutate(cp_stat = x$change_point$statistic) %>% 
-    select(pos, information_content, cp_stat) %>% 
+    mutate(cp_stat = x$change_point$statistic,
+           symbol = as.numeric(symbol)) %>% 
+    select(pos, information_content, cp_stat, symbol) %>% 
     gather(var, value, - pos) %>% 
     na.omit() %>% 
-    mutate(var = recode(var, 
-                        cp_stat = "Change-point analysis",
-                        information_content = "Information content")) %>% 
+    mutate(var = recode_factor(var, 
+                               symbol = "Frequency (Hz)",
+                               cp_stat = "Change-point statistic",
+                               information_content = "Information content (bits)"
+    )) %>% 
     ggplot(aes(x = pos, y = value)) +
-    geom_point(shape = 21, size = 3) + 
+    geom_point(size = 1, colour = "navy") + 
     scale_x_continuous("Tone number", 
                        sec.axis = sec_axis(~ spline(x$profile$pos,
                                                     x$profile$time,
                                                     xout = .,
                                                     method = "natural")$y,
                                            name = "Time (seconds)")) +
-    scale_y_continuous("Statistic") +
+    scale_y_continuous("Value") +
     facet_wrap(~ var, ncol = 1, scales = "free_y") +
-    ggtitle(glue("Lag = {x$change_point$lag_tones} tones")) +
-    theme_classic()
+    # theme_bw() +
+    theme_classic() +
+    theme(panel.grid = element_blank(), 
+          strip.background = element_rect(colour = "white"),
+          strip.text = element_text(hjust = 0),
+          legend.key.size = unit(1, 'cm'),
+          legend.position = "bottom")
   
-  if (!is.na(x$info$trial$transition))
-    p <- p + geom_vline(xintercept = x$info$trial$transition + 
-                          x$info$trial$alphabet_size)
+  if (lag) p <- p + ggtitle(glue("Lag = {x$change_point$lag_tones} tones")) 
+  
+  if (!is.na(x$info$trial$transition)) {
+    f <- function(x) factor(x, levels = c("Phase change",
+                                          "First repetition",
+                                          "Detect transition"))
+    p <- p + 
+      geom_vline(aes(xintercept = x$info$trial$transition,
+                     linetype = "Phase change",
+                     colour = "Phase change")) +
+      geom_vline(aes(xintercept = x$info$trial$transition + x$info$trial$alphabet_size,
+                     linetype = "First repetition",
+                     colour = "First repetition"))
+  }
   
   if (x$change_point$change_detected)
-    p <- p + geom_vline(xintercept = x$change_point$pos_when_change_detected,
-                        colour = "red", linetype = "dashed")
+    p <- p + geom_vline(aes(xintercept = x$change_point$pos_when_change_detected,
+                            colour = "Detect transition", 
+                            linetype = "Detect transition"))
+  
+  p <- p + scale_linetype_manual("", values = c(`Phase change` = "solid",
+                                                `First repetition` = "dashed",
+                                                `Detect transition` = "dotted"),
+                                 guide = guide_legend(reverse = TRUE))
+  p <- p + scale_colour_manual("", values = c(`Phase change` = "darkred",
+                                              `First repetition` = "darkred",
+                                              `Detect transition` = "darkred"),
+                               guide = guide_legend(reverse = TRUE))
   
   p
 }

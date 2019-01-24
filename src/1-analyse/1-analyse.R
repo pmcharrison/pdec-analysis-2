@@ -15,11 +15,20 @@ for (f in list.files("src/1-analyse/functions/", full.names = TRUE))
 
 dat <- readRDS("output/dat-response.rds")
 
-model_detail <- model(dat = dat, downsample = 50)
+model_detail <- model(dat = dat, downsample = 5)
 model_summary <- summarise_models(model_detail)
 subj_summary <- get_subj_summary(dat)
 combined_summary <- get_combined_summary(model_summary, subj_summary)
 print(plot(combined_summary))
+
+saveRDS(list(
+  detail = model_detail,
+  summary = list(
+    model = model_summary,
+    subj = subj_summary,
+    all = combined_summary
+  )
+), "output/analysis.rds")
 
 if (FALSE) {
   View(model_summary)
@@ -30,7 +39,7 @@ if (FALSE) {
     pull(detail) %>%
     {.[[1]]} %>% 
     {.$res[[3]]} %>% plot
-    # {.$profile} %>% View
+  # {.$profile} %>% View
   plot
 }
 

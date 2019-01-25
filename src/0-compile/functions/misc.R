@@ -26,17 +26,30 @@ add_row_id <- function(dat) {
 }
 
 drop_excluded_trials <- function(dat) {
+  log <- "output/describe-exclude-trials.txt"
   n <- nrow(dat)
+  write(paste0("Original number of trials: ", n), log)
   res <- filter(dat, include)
-  message("Excluded ", n - nrow(res), " further trials")
+  msg <- paste0("Excluded ", n - nrow(res), " trials, ",
+                "leaving ", nrow(res), " trials")
+  write(msg, log, append = TRUE)
+  message(msg)
   res
 }
 
 drop_excluded_subj <- function(dat, subj_to_exclude) {
+  log <- "output/describe-subj.txt"
   n <- nrow(dat)
+  write(paste0("Original number of subjects: ", length(unique(dat$subj))), log)
+  write(paste0("Original number of trials: ", nrow(dat)), log, append = TRUE)
+  write(paste0("Excluded subject IDs: ", paste(subj_to_exclude, collapse = ", ")),
+        log, append = TRUE)
   res <- filter(dat, !subj %in% subj_to_exclude)
-  message("Excluded ", length(subj_to_exclude), " participant(s) with ",
-          n - nrow(res), " trials")
+  msg <- paste0("Excluded ", length(subj_to_exclude), 
+                " participant(s) with ",
+                n - nrow(res), " trials, leaving ", nrow(res), " trials")
+  message(msg)
+  write(msg, log, append = TRUE)
   res
 }
 
@@ -68,7 +81,9 @@ get_rt_baselines_2 <- function(dat) {
 }
 
 drop_outliers <- function(dat, rt_baselines_2, z_threshold) {
+  log <- "output/describe-drop-outliers.txt"
   n <- nrow(dat)
+  write(paste0("Original number of trials: ", n), log)
   dat <- left_join(dat, rt_baselines_2,
                    by = c("tone_len_ms", "alphabet_size", "cond_i"))
   stopifnot(n == nrow(dat))
@@ -76,7 +91,10 @@ drop_outliers <- function(dat, rt_baselines_2, z_threshold) {
     rt_norm_z = (rt_norm - rt_norm_reference_mean) / rt_norm_reference_sd
   )
   dat <- filter(dat, is.na(rt_norm) | abs(rt_norm_z) < !! z_threshold)
-  message("Dropped ", n - nrow(dat), " outliers")
+  msg <- paste0("Dropped ", n - nrow(dat), " outliers, leaving ", 
+                nrow(dat), " trials")
+  message(msg)
+  write(msg, log, append = TRUE)
   dat
 }
 

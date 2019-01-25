@@ -3,11 +3,15 @@ summarise_subj <- function(dat) {
     filter(cond == "randreg" & response == "hit") %>% 
     group_by(alphabet_size, tone_len_ms) %>% 
     summarise(mean = mean(rt_norm_tones_from_repeat),
+              median = median(rt_norm_tones_from_repeat),
               sd = sd(rt_norm_tones_from_repeat),
-              n = n(), 
-              se = sd / sqrt(n),
-              ci_95_min = mean - 1.96 * se,
-              ci_95_max = mean + 1.96 * se) %>% 
+              quantile_25 = quantile(rt_norm_tones_from_repeat, probs = 0.25),
+              quantile_75 = quantile(rt_norm_tones_from_repeat, probs = 0.75),
+              n = n() 
+              # se = sd / sqrt(n), # not valid because of repetition within participants
+              # ci_95_min = mean - 1.96 * se,
+              # ci_95_max = mean + 1.96 * se
+              ) %>% 
     ungroup()
   class(res) <- c("summary_subj", class(res))
   res

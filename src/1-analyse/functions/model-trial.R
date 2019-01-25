@@ -92,6 +92,8 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
           strip.background = element_rect(colour = "white"),
           strip.text = element_text(hjust = 0),
           legend.key.size = unit(1, 'cm'),
+          legend.key.width = unit(3.0, "cm"),
+          legend.spacing.x = unit(1.0, 'cm'),
           legend.position = "bottom")
   
   if (lag) p <- p + ggtitle(glue("Lag = {x$change_point$lag_tones} tones")) 
@@ -117,11 +119,13 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
   p <- p + scale_linetype_manual("", values = c(`Phase change` = "solid",
                                                 `First repetition` = "dashed",
                                                 `Detection of transition` = "dotted"),
-                                 guide = guide_legend(reverse = TRUE))
+                                 guide = guide_legend(reverse = TRUE, 
+                                                      label.position = "bottom"))
   p <- p + scale_colour_manual("", values = c(`Phase change` = "darkred",
                                               `First repetition` = "darkred",
                                               `Detection of transition` = "darkred"),
-                               guide = guide_legend(reverse = TRUE))
+                               guide = guide_legend(reverse = TRUE,
+                                                    label.position = "bottom"))
   
   p
 }

@@ -40,8 +40,8 @@ plot_model <- function(summary_model, summary_subj, ...) {
     )
   
   d2 <- summary_subj %>%
-    mutate(alphabet_size = factor(alphabet_size),
-           label = factor("Participants"))
+    mutate(alphabet_size = factor(alphabet_size))
+           # label = factor("Participants"))
   
   ggplot(data = d1) +
     geom_bar(data = d1,
@@ -60,16 +60,16 @@ plot_model <- function(summary_model, summary_subj, ...) {
     geom_point(data = d2, 
                mapping = aes(x = alphabet_size, 
                              y = mean, 
-                             group = tone_len_ms,
-                             shape = label),
+                             group = tone_len_ms),
+                             # shape = label),
                position = position_dodge(width = 0.9),
-               fill = "white", alpha = 1) +
+               fill = "white", alpha = 1, shape = 21) +
     scale_x_discrete("Alphabet size") +
     scale_y_continuous("Response time (in tones)") +
     scale_fill_manual("Tone length (ms)",
                       values = c("#E8E410", "#11A3FF", "#B50000") %>% rev,
                       guide = FALSE) +
-    scale_shape_manual("", values = 21) +
+    # scale_shape_manual("", values = 21) +
     # scale_linetype_discrete("", guide = guide_legend(override.aes = list(
     #   fill = "white"))) +
     theme_classic() +

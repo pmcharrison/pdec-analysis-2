@@ -1,7 +1,7 @@
 label,group,buffer_time,buffer_items,buffer_rate,stm_half_life,stm_rate,ltm_rate,noise,order_bound,include
-"L1, no decay",Original,0,0,0,Inf,1,1,0,1,TRUE
-"L5, no decay",Original,0,0,0,Inf,1,1,0,5,TRUE
-"L10, no decay",Original,0,0,0,Inf,1,1,0,10,TRUE
+"L1, no decay",Original PPM,0,0,0,Inf,1,1,0,1,TRUE
+"L5, no decay",Original PPM,0,0,0,Inf,1,1,0,5,TRUE
+"L10, no decay",Original PPM,0,0,0,Inf,1,1,0,10,TRUE
 L1 + exp. decay,`+ Exponential decay,0,0,0,0.5,1,0,0,1,TRUE
 L5 + exp.decay,`+ Exponential decay,0,0,0,0.5,1,0,0,5,TRUE
 L10 + exp.decay,`+ Exponential decay,0,0,0,0.5,1,0,0,10,TRUE

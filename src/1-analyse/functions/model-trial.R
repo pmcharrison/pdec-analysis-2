@@ -99,7 +99,7 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
   if (!is.na(x$info$trial$transition)) {
     f <- function(x) factor(x, levels = c("Phase change",
                                           "First repetition",
-                                          "Detect transition"))
+                                          "Detection of transition"))
     p <- p + 
       geom_vline(aes(xintercept = x$info$trial$transition,
                      linetype = "Phase change",
@@ -111,16 +111,16 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
   
   if (x$change_point$change_detected)
     p <- p + geom_vline(aes(xintercept = x$change_point$pos_when_change_detected,
-                            colour = "Detect transition", 
-                            linetype = "Detect transition"))
+                            colour = "Detection of transition", 
+                            linetype = "Detection of transition"))
   
   p <- p + scale_linetype_manual("", values = c(`Phase change` = "solid",
                                                 `First repetition` = "dashed",
-                                                `Detect transition` = "dotted"),
+                                                `Detection of transition` = "dotted"),
                                  guide = guide_legend(reverse = TRUE))
   p <- p + scale_colour_manual("", values = c(`Phase change` = "darkred",
                                               `First repetition` = "darkred",
-                                              `Detect transition` = "darkred"),
+                                              `Detection of transition` = "darkred"),
                                guide = guide_legend(reverse = TRUE))
   
   p

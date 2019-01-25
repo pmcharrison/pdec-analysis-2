@@ -1,5 +1,20 @@
-plot_subj_rt <- function(y) {
-  y %>% 
+summarise_subj <- function(dat) {
+  res <- dat %>% 
+    filter(cond == "randreg" & response == "hit") %>% 
+    group_by(alphabet_size, tone_len_ms) %>% 
+    summarise(mean = mean(rt_norm_tones_from_repeat),
+              sd = sd(rt_norm_tones_from_repeat),
+              n = n(), 
+              se = sd / sqrt(n),
+              ci_95_min = mean - 1.96 * se,
+              ci_95_max = mean + 1.96 * se) %>% 
+    ungroup()
+  class(res) <- c("summary_subj", class(res))
+  res
+}
+
+plot_subj <- function(dat_response) {
+  dat_response %>% 
     filter(cond == "randreg" & response == "hit") %>% 
     mutate(
       alphabet_size = as.character(alphabet_size),
@@ -20,7 +35,7 @@ plot_subj_rt <- function(y) {
     scale_x_discrete("Alphabet size") +  
     scale_y_continuous("Response time (in tones)") +
     scale_fill_manual("Tone length (ms)",
-                     values = c("#E8E410", "#11A3FF", "#B50000") %>% rev) +
+                      values = c("#E8E410", "#11A3FF", "#B50000") %>% rev) +
     theme_classic() +
     theme(aspect.ratio = 1,
           panel.grid.major = element_line(colour = "lightgrey"))

@@ -28,7 +28,7 @@ p3 <- plot_example_trial(dat_analysis)
 
 P1 <- cowplot::plot_grid(p1, p2, ncol = 1, rel_heights = c(1.2, 2), labels = "AUTO")
 ggsave(plot = P1, filename = "output/by-cond.eps", width = 7.5, height = 7.5)
-ggsave(plot = p3, filename = "output/example-trial.eps", width = 6, height = 5.5)
+ggsave(plot = p3, filename = "output/example-trial.eps", width = 5.5, height = 5.5)
 
 summary_subj %>% write_csv("output/summary-subj.csv")
 summary_model %>% select(- lag_tones ) %>% write_csv("output/summary-model.csv")

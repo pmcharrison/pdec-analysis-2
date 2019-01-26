@@ -8,9 +8,9 @@ L10 + exp.decay,`+ Exponential decay,0,0,0,0.5,1,0,0,10,TRUE
 L1 + retrieval noise,`+ Retrieval noise,0,0,0,1.7,1,0,0.5,1,TRUE
 L5 + retrieval noise,`+ Retrieval noise,0,0,0,1.2,1,0,0.5,5,TRUE
 L10 + retrieval noise,`+ Retrieval noise,0,0,0,1.2,1,0,0.5,10,TRUE
-L1 + buffer,`+ Buffer,2,15,0.9,1.8,0.7,0,0.5,1,TRUE
-L5 + buffer,`+ Buffer,2,15,0.8,2,0.5,0,0.5,5,TRUE
-L10 + buffer,`+ Buffer,2,12,0.8,2,0.5,0,0.5,10,TRUE
+L1 + buffer,`+ Buffer,2,15,0.9,1,0.7,0,0.5,1,TRUE
+L5 + buffer,`+ Buffer,2,15,0.8,1.8,0.61,0,0.5,5,TRUE
+L10 + buffer,`+ Buffer,2,12,0.8,1.9,0.61,0,0.5,10,TRUE
 buffer 13,,2,13,1,2,0.5,0,0.5,10,FALSE
 buffer 14,,2,14,1,2,0.5,0,0.5,10,FALSE
 buffer 15,,2,15,1,2,0.5,0,0.5,10,FALSE

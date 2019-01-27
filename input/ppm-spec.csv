@@ -5,12 +5,12 @@ label,group,buffer_time,buffer_items,buffer_rate,stm_half_life,stm_rate,ltm_rate
 L1 + exp. decay,`+ Exponential decay,0,0,0,0.5,1,0,0,1,TRUE
 L5 + exp.decay,`+ Exponential decay,0,0,0,0.5,1,0,0,5,TRUE
 L10 + exp.decay,`+ Exponential decay,0,0,0,0.5,1,0,0,10,TRUE
-L1 + retrieval noise,`+ Retrieval noise,0,0,0,1.75,1,0,0.5,1,TRUE
-L5 + retrieval noise,`+ Retrieval noise,0,0,0,1.25,1,0,0.5,5,TRUE
-L10 + retrieval noise,`+ Retrieval noise,0,0,0,1.15,1,0,0.5,10,TRUE
+L1 + retrieval noise,`+ Retrieval noise,0,0,0,1.725,1,0,0.5,1,TRUE
+L5 + retrieval noise,`+ Retrieval noise,0,0,0,1.23,1,0,0.5,5,TRUE
+L10 + retrieval noise,`+ Retrieval noise,0,0,0,1.175,1,0,0.5,10,TRUE
 L1 + buffer,`+ Buffer,2,15,0.9,1.1,0.7,0,0.5,1,TRUE
-L5 + buffer,`+ Buffer,2,15,0.77,1.55,0.52,0,0.5,5,TRUE
-L10 + buffer,`+ Buffer,2,12,0.8,1.9,0.6,0,0.5,10,FALSE
+L5 + buffer,`+ Buffer,2,15,0.77,1.5,0.52,0,0.5,5,TRUE
+L10 + buffer,`+ Buffer,2,12,0.8,1.9,0.6,0,0.5,10,TRUE
 buffer 13,,2,13,1,2,0.5,0,0.5,10,FALSE
 buffer 14,,2,14,1,2,0.5,0,0.5,10,FALSE
 buffer 15,,2,15,1,2,0.5,0,0.5,10,FALSE

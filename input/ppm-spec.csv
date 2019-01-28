@@ -10,7 +10,7 @@ L5 + retrieval noise,`+ Retrieval noise,0,0,0,1.23,1,0,0.5,5,TRUE
 L10 + retrieval noise,`+ Retrieval noise,0,0,0,1.175,1,0,0.5,10,TRUE
 L1 + buffer,`+ Buffer,2,15,0.9,1.1,0.7,0,0.5,1,TRUE
 L5 + buffer,`+ Buffer,2,15,0.77,1.5,0.52,0,0.5,5,TRUE
-L10 + buffer,`+ Buffer,2,12,0.77,1.6,0.55,0,0.5,10,TRUE
+L10 + buffer,`+ Buffer,2,12,0.77,1.75,0.55,0,0.5,10,TRUE
 L10 + buffer (old),`+ Buffer,2,12,0.8,1.9,0.6,0,0.5,10,FALSE
 buffer 13,,2,13,1,2,0.5,0,0.5,10,FALSE
 buffer 14,,2,14,1,2,0.5,0,0.5,10,FALSE

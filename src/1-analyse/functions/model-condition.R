@@ -1,8 +1,8 @@
 model_condition <- function(alphabet_size, tone_len_ms, dat,
                             ppm_spec, change_point_spec, 
-                            alphabet, downsample = NULL) {
+                            alphabet, downsample, fake_tone_len_ms) {
   with_seed(1, {
-    trials <- get_trials(alphabet_size, tone_len_ms, dat, downsample)
+    trials <- get_trials(alphabet_size, tone_len_ms, dat, downsample, fake_tone_len_ms)
     flog.info(glue("Analysing {nrow(trials)} trials with ", 
                    "alphabet_size = {alphabet_size} and ",
                    "tone_len_ms = {tone_len_ms}..."))
@@ -34,9 +34,12 @@ print.condition_analysis <- function(x, ...) {
   )
 }
 
-get_trials <- function(alphabet_size, tone_len_ms, dat, downsample) {
-  fake_tone_len_ms <- TRUE
-  # if (fake_tone_len_ms) warning("Faking tone length")
+#' @param fake_tone_len_ms If \code{TRUE},
+#' then sequences are artificially matched between tone lengths.
+#' This helps comparisons between different tone lengths converge faster,
+#' but it is not quite a veridical account of the data.
+get_trials <- function(alphabet_size, tone_len_ms, dat, downsample, 
+                       fake_tone_len_ms) {
   candidates <- dat %>% filter(
     alphabet_size == !!alphabet_size &
       (fake_tone_len_ms | (tone_len_ms == !!tone_len_ms)) &
@@ -51,4 +54,3 @@ get_trials <- function(alphabet_size, tone_len_ms, dat, downsample) {
     sample_n(candidates, size = downsample, replace = FALSE)
   }
 }
-

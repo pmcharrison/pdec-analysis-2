@@ -14,7 +14,11 @@ for (f in list.files("src/1-analyse/functions/", full.names = TRUE))
   source(f)
 
 dat <- readRDS("output/dat-response.rds")
-res <- model(dat = dat, downsample = 100)
+
+# This analysis is slow (~ 1 day to complete).
+# For a faster approximation, set downsample = 20 and fake_tone_len_ms = TRUE.
+res <- model(dat)
+
 saveRDS(res, "output/dat-analysis.rds")
 
 beep(4)

@@ -2,7 +2,8 @@ model_conditions <- function(ppm_spec,
                              dat, 
                              change_point_spec,
                              alphabet, 
-                             downsample) {
+                             downsample,
+                             fake_tone_len_ms) {
   flog.info(glue("Applying PPM variant '{ppm_spec$label}'..."))
   ppm_spec <- as.list(ppm_spec)
   ppm_spec$label <- NULL
@@ -11,7 +12,9 @@ model_conditions <- function(ppm_spec,
   cond %>% 
     mutate(detail = map2(alphabet_size, tone_len_ms,
                          model_condition,
-                         dat, ppm_spec, change_point_spec, alphabet, downsample),
+                         dat, ppm_spec, change_point_spec, alphabet, 
+                         downsample,
+                         fake_tone_len_ms),
            lag_tones = map(detail, 
                            ~ map_int(.$res, ~ .$change_point$lag_tones)))
 }

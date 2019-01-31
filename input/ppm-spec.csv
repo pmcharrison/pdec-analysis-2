@@ -10,19 +10,4 @@ L5 + retrieval noise,`+ Retrieval noise,0,0,0,1.23,1,0,0.5,5,TRUE
 L10 + retrieval noise,`+ Retrieval noise,0,0,0,1.175,1,0,0.5,10,TRUE
 L1 + buffer,`+ Buffer,2,15,0.9,1.1,0.7,0,0.5,1,TRUE
 L5 + buffer,`+ Buffer,2,15,0.77,1.5,0.52,0,0.5,5,TRUE
-L10 + buffer,`+ Buffer,2,12,0.77,1.75,0.54,0,0.5,10,TRUE
-L10 + buffer (old),`+ Buffer,2,12,0.8,1.9,0.6,0,0.5,10,FALSE
-buffer 13,,2,13,1,2,0.5,0,0.5,10,FALSE
-buffer 14,,2,14,1,2,0.5,0,0.5,10,FALSE
-buffer 15,,2,15,1,2,0.5,0,0.5,10,FALSE
-buffer 16,,2,16,1,2,0.5,0,0.5,10,FALSE
-buffer 17,,2,17,1,2,0.5,0,0.5,10,FALSE
-buffer 18,,2,18,1,2,0.5,0,0.5,10,FALSE
-buffer_rate 0.95,,2,12,0.95,2,0.5,0,0.5,10,FALSE
-buffer_rate 0.9,,2,12,0.9,2,0.5,0,0.5,10,FALSE
-buffer_rate 0.85,,2,12,0.85,2,0.5,0,0.5,10,FALSE
-buffer_rate 0.8,,2,12,0.8,2,0.5,0,0.5,10,FALSE
-"1st-order, time buffer, exp. decay",,10000,0.75,1,1,1,0,0.5,1,FALSE
-"1st-order, time buffer, exp. decay (v2)",,10000,0.75,1,1,0.8,0,0.5,1,FALSE
-"PPM, time buffer, exp. decay",,10000,0.75,1,1,1,0,0.5,10,FALSE
-"1st-order, item buffer, exp. decay",,2,18,1,0.04,1,0.35,0.5,1,FALSE
+L10 + buffer,`+ Buffer,2,12,0.77,1.8,0.54,0,0.5,10,TRUE

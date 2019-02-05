@@ -42,13 +42,13 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
   if (lag) p <- p + ggtitle(glue("Lag = {x$change_point$lag_tones} tones")) 
   
   if (!is.na(x$info$trial$transition)) {
-    f <- function(x) factor(x, levels = c("Phase change",
+    f <- function(x) factor(x, levels = c("Section boundary",
                                           "First repetition",
                                           "Detection of transition"))
     p <- p + 
       geom_vline(aes(xintercept = x$info$trial$transition,
-                     linetype = "Phase change",
-                     colour = "Phase change")) +
+                     linetype = "Section boundary",
+                     colour = "Section boundary")) +
       geom_vline(aes(xintercept = x$info$trial$transition + x$info$trial$alphabet_size,
                      linetype = "First repetition",
                      colour = "First repetition"))
@@ -59,12 +59,12 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
                             colour = "Detection of transition", 
                             linetype = "Detection of transition"))
   
-  p <- p + scale_linetype_manual("", values = c(`Phase change` = "solid",
+  p <- p + scale_linetype_manual("", values = c(`Section boundary` = "solid",
                                                 `First repetition` = "dashed",
                                                 `Detection of transition` = "dotted"),
                                  guide = guide_legend(reverse = TRUE, 
                                                       label.position = "bottom"))
-  p <- p + scale_colour_manual("", values = c(`Phase change` = "darkred",
+  p <- p + scale_colour_manual("", values = c(`Section boundary` = "darkred",
                                               `First repetition` = "darkred",
                                               `Detection of transition` = "darkred"),
                                guide = guide_legend(reverse = TRUE,

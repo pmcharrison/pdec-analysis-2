@@ -7,16 +7,6 @@ for (f in list.files("src/2-summarise/functions", full.names = TRUE))
 dat_analysis <- readRDS("output/dat-analysis.rds")
 dat_response <- readRDS("output/dat-response.rds")
 
-if (FALSE) {
-  dat_analysis <- dat_analysis$detail
-  dat_analysis <- dat_analysis %>% mutate(
-    group = gsub("`", "", group),
-    group = if_else(group == "+ Exponential decay" & noise != 0,
-                    "+ Retrieval noise",
-                    group)
-  )
-}
-
 summary_subj <- summarise_subj(dat_response)
 summary_model <- summarise_models(dat_analysis)
 

@@ -13,8 +13,8 @@ summarise_models <- function(y) {
       ci_95_min = mean - qnorm(0.975) * se,
       ci_95_max = mean + qnorm(0.975) * se
     ) 
-  if (any(res$error_count > 0)) 
-    warning("errors found in change-point detection")
+  # if (any(res$error_count > 0)) 
+  #   warning("errors found in change-point detection")
   class(res) <- c("summary_model", class(res))
   res
 }

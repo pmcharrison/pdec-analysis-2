@@ -34,14 +34,15 @@ get_ppm_spec <- function() {
 ppm_options_from_ppm_spec <- function(x) {
   if (is.data.frame(x)) stopifnot(nrow(x) == 1L)
   stopifnot(x$order_bound <= 10L)
-  PPMdecay::ppm_options(
-    PPMdecay::decay_buffer(buffer_time = x$buffer_time,
-                           buffer_items = x$buffer_items,
-                           buffer_rate = x$buffer_rate,
-                           stm_half_life = x$stm_half_life,
-                           stm_rate = x$stm_rate,
-                           ltm_rate = x$ltm_rate,
-                           noise = x$noise),
-    order_bound = x$order_bound
-  )
+  # PPMdecay::ppm_options(
+  #   PPMdecay::decay_buffer(buffer_time = x$buffer_time,
+  #                          buffer_items = x$buffer_items,
+  #                          buffer_rate = x$buffer_rate,
+  #                          stm_half_life = x$stm_half_life,
+  #                          stm_rate = x$stm_rate,
+  #                          ltm_rate = x$ltm_rate,
+  #                          noise = x$noise),
+  #   order_bound = x$order_bound
+  # )
+  x
 }

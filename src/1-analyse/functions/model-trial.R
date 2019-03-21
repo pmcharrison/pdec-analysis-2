@@ -56,13 +56,14 @@ change_point_trial <- function(x, transition, alphabet_size, spec) {
 ppm_trial <- function(stim, alphabet_size, tone_len_ms, ppm_spec, alphabet) {
   stim <- stim %>% 
     mutate(time = seq(from = 0, by = tone_len_ms / 1000, length.out = n()),
-           symbol = as.integer(factor(tone, levels = alphabet)) - 1L)
+           symbol = factor(tone, levels = alphabet))
   ppm::new_ppm_decay(
     alphabet_size = length(alphabet),
     order_bound = ppm_spec$order_bound,
     buffer_length_time = ppm_spec$buffer_time,
     buffer_length_items = ppm_spec$buffer_items,
     buffer_weight = ppm_spec$buffer_rate, 
+    only_learn_from_buffer = ppm_spec$only_learn_from_buffer,
     stm_half_life = ppm_spec$stm_half_life, 
     stm_weight = ppm_spec$stm_rate,
     ltm_weight = ppm_spec$ltm_rate, 

@@ -9,12 +9,13 @@ plot_example_trial <- function(x) {
 plot.trial_analysis <- function(x, lag = TRUE, ...) {
   p <- x$profile %>% 
     mutate(cp_stat = x$change_point$statistic,
-           symbol = as.numeric(symbol)) %>% 
-    select(pos, information_content, cp_stat, symbol) %>% 
+           freq = x$info$alphabet[symbol],
+           log_freq = log(freq)) %>% 
+    select(pos, information_content, cp_stat, log_freq) %>% 
     gather(var, value, - pos) %>% 
     na.omit() %>% 
     mutate(var = recode_factor(var, 
-                               symbol = "Frequency (Hz)",
+                               log_freq = "Frequency (logarithm)",
                                information_content = "Information content (bits)",
                                cp_stat = "Change-point statistic"
                                

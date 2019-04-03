@@ -1,5 +1,5 @@
 label,group,buffer_time,buffer_items,buffer_rate,stm_half_life,stm_rate,ltm_rate,noise,order_bound,only_learn_from_buffer,include
-"L1, no decay",Original PPM,0,15,0,999999,1,1,0,1,FALSE,TRUE
+"L1, no decay",Original PPM,0,0,0,999999,1,1,0,1,FALSE,TRUE
 "L5, no decay",Original PPM,0,0,0,999999,1,1,0,5,FALSE,TRUE
 "L10, no decay",Original PPM,0,0,0,999999,1,1,0,10,FALSE,TRUE
 L1 + exp. decay,`+ Exponential decay,0,0,0,0.5,1,0,0,1,FALSE,TRUE

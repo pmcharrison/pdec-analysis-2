@@ -64,6 +64,7 @@ ppm_trial <- function(stim, alphabet_size, tone_len_ms, ppm_spec, alphabet) {
     buffer_length_items = ppm_spec$buffer_items,
     buffer_weight = ppm_spec$buffer_rate, 
     only_learn_from_buffer = ppm_spec$only_learn_from_buffer,
+    only_predict_from_buffer = ppm_spec$only_predict_from_buffer,
     stm_half_life = ppm_spec$stm_half_life, 
     stm_weight = ppm_spec$stm_rate,
     ltm_weight = ppm_spec$ltm_rate, 

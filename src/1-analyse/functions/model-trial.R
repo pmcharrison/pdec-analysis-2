@@ -33,9 +33,6 @@ model_trial <- function(trial,
   res
 }
 
-R.utils::mkdirs("cache/model_trial")
-model_trial <- memoise(model_trial, cache = cache_filesystem("cache/model_trial"))
-
 change_point_trial <- function(x, transition, alphabet_size, spec) {
   cp <- cpm::detectChangePoint(x, 
                                cpmType = spec$method, 

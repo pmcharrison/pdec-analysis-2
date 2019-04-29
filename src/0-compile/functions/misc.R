@@ -75,7 +75,7 @@ norm_reaction_times <- function(dat, rt_baselines_1) {
 
 get_rt_baselines_2 <- function(dat) {
   dat %>% 
-    group_by(tone_len_ms, alphabet_size, cond_i) %>% 
+    group_by(tone_len_ms, alphabet_size, cond_i, subj) %>% 
     summarise(rt_norm_reference_mean = mean(rt_norm, na.rm = TRUE),
               rt_norm_reference_sd = sd(rt_norm, na.rm = TRUE))
 }
@@ -85,7 +85,7 @@ drop_outliers <- function(dat, rt_baselines_2, z_threshold) {
   n <- nrow(dat)
   write(paste0("Original number of trials: ", n), log)
   dat <- left_join(dat, rt_baselines_2,
-                   by = c("tone_len_ms", "alphabet_size", "cond_i"))
+                   by = c("tone_len_ms", "alphabet_size", "cond_i", "subj"))
   stopifnot(n == nrow(dat))
   dat <- dat %>% mutate(
     rt_norm_z = (rt_norm - rt_norm_reference_mean) / rt_norm_reference_sd
@@ -98,6 +98,8 @@ drop_outliers <- function(dat, rt_baselines_2, z_threshold) {
   dat
 }
 
+# This regression no longer works because we changed the outlier exclusion 
+# criteria from Roberta's original analysis
 regression_test <- function(dat) {
   x <- dat %>% 
     filter(cond_i %in% c(2, 4)) %>% 

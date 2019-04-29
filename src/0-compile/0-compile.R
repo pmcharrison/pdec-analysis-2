@@ -14,7 +14,6 @@ dat <- drop_excluded_subj(dat, subj_to_exclude = c(7))
 dat <- drop_excluded_trials(dat) 
 rt_baselines_1 <- get_rt_baselines_1(dat) # used to normalise reaction times; benchmarked within subjects and blocks
 dat <- norm_reaction_times(dat, rt_baselines_1) # note: only randreg trials are normalised
-rt_baselines_2 <- get_rt_baselines_2(dat) # used to discard outliers; benchmarked within conditions, across subjects, across blocks
+rt_baselines_2 <- get_rt_baselines_2(dat) # used to discard outliers; benchmarked within conditions, within subjects, across blocks
 dat <- drop_outliers(dat, rt_baselines_2, z_threshold = 2)
-regression_test(dat)
 saveRDS(dat, "output/dat-response.rds")

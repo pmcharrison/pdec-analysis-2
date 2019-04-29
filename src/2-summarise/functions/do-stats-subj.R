@@ -1,10 +1,7 @@
 library(broom)
 
-do_stats_subj <- function(dat_response) {
-  raw <- dat_response %>% 
-    filter(cond == "randreg" & response == "hit") %>% 
-    group_by(subj, alphabet_size, tone_len_ms) %>% 
-    summarise(rt_norm_tones_from_repeat = median(rt_norm_tones_from_repeat)) %>% 
+do_stats_subj <- function(subj_vals) {
+  raw <- subj_vals %>% 
     group_by(alphabet_size, tone_len_ms) %>% 
     do(data = (.)) %>% 
     ungroup() %>% 
@@ -26,7 +23,7 @@ friedman_subj <- function(raw) {
           subj_dat %>% 
             filter(alphabet_size == alph_size & 
                      tone_len_ms == tone_len) %>%
-            pull(rt_norm_tones_from_repeat)
+            pull(subj_val)
         }) %>% as_tibble()
     }) %>% bind_rows() %>% as.matrix() %>% friedman.test() %>% glance() %>% 
       add_column(alphabet_size = alph_size, .before = 1)
@@ -40,15 +37,15 @@ wilcox_subj <- function(raw) {
     as_tibble() %>% 
     mutate(dat_1 = map(group_1, ~ select(filter(raw, group == .)$data[[1]], 
                                          subj,
-                                         rt_norm_tones_from_repeat)),
+                                         subj_val)),
            dat_2 = map(group_2, ~ select(filter(raw, group == .)$data[[1]], 
                                          subj,
-                                         rt_norm_tones_from_repeat)),
+                                         subj_val)),
            dat = map2(dat_1, dat_2, inner_join, by = "subj")) %>% 
     select(- c(dat_1, dat_2)) %>% 
     mutate(
-      wilcox = map(dat, ~ wilcox.test(x = .$rt_norm_tones_from_repeat.x,
-                                      y = .$rt_norm_tones_from_repeat.y,
+      wilcox = map(dat, ~ wilcox.test(x = .$subj_val.x,
+                                      y = .$subj_val.y,
                                       paired = TRUE) %>% broom::glance()
       )) %>% select(- dat) %>% unnest() %>% 
     merge(select(raw, group, alphabet_size, tone_len_ms),

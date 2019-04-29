@@ -1,23 +1,40 @@
 summarise_subj <- function(dat) {
-  res <- dat %>% 
+  subj_vals <- dat %>% 
     filter(cond == "randreg" & response == "hit") %>% 
-    group_by(alphabet_size, tone_len_ms) %>% 
-    summarise(mean = mean(rt_norm_tones_from_repeat),
-              median = median(rt_norm_tones_from_repeat),
-              sd = sd(rt_norm_tones_from_repeat),
-              quantile_25 = quantile(rt_norm_tones_from_repeat, probs = 0.25),
-              quantile_75 = quantile(rt_norm_tones_from_repeat, probs = 0.75),
-              n = n() 
+    group_by(alphabet_size, tone_len_ms, subj) %>% 
+    summarise(subj_val = median(rt_norm_tones_from_repeat)
+              # median = median(rt_norm_tones_from_repeat),
+              # sd = sd(rt_norm_tones_from_repeat),
+              # quantile_25 = quantile(rt_norm_tones_from_repeat, probs = 0.25),
+              # quantile_75 = quantile(rt_norm_tones_from_repeat, probs = 0.75),
+              # n_subj = n())
               # se = sd / sqrt(n), # not valid because of repetition within participants
               # ci_95_min = mean - 1.96 * se,
               # ci_95_max = mean + 1.96 * se
-              ) %>% 
+    ) %>% 
     ungroup()
+  
+  cond_means <- subj_vals %>% 
+    group_by(alphabet_size, tone_len_ms) %>% 
+    summarise(mean = mean(subj_val),
+              median = median(subj_val),
+              sd = sd(subj_val),
+              n = n(),
+              se = sd / sqrt(n),
+              ci_95_min = mean - 1.96 * se,
+              ci_95_max = mean + 1.96 * se
+    ) %>% 
+    ungroup()
+  
+  res <- list(subj_vals = subj_vals,
+              cond_means = cond_means,
+              stat = do_stats_subj(subj_vals))
+  
   class(res) <- c("summary_subj", class(res))
   res
 }
 
-plot_subj <- function(dat_response) {
+plot_trials <- function(dat_response) {
   dat_response %>% 
     filter(cond == "randreg" & response == "hit") %>% 
     mutate(

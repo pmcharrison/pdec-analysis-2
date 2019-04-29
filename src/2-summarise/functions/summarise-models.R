@@ -39,7 +39,7 @@ plot_model <- function(summary_model, summary_subj, ...) {
       order_bound = factor(order_bound, levels = unique(order_bound))
     )
   
-  d2 <- summary_subj %>%
+  d2 <- summary_subj$cond_means %>%
     mutate(alphabet_size = factor(alphabet_size))
            # label = factor("Participants"))
   
@@ -59,7 +59,7 @@ plot_model <- function(summary_model, summary_subj, ...) {
                   width = 0.2) +
     geom_point(data = d2, 
                mapping = aes(x = alphabet_size, 
-                             y = mean, 
+                             y = median, 
                              group = tone_len_ms),
                              # shape = label),
                position = position_dodge(width = 0.9),

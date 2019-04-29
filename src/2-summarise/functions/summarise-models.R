@@ -43,36 +43,44 @@ plot_model <- function(summary_model, summary_subj, ...) {
     mutate(alphabet_size = factor(alphabet_size))
            # label = factor("Participants"))
   
-  ggplot(data = d1) +
-    geom_bar(data = d1,
-             aes(x = alphabet_size, 
-                 y = mean, 
-                 fill = tone_len_ms),
-             stat = "identity", position = "dodge", width = 0.9, colour = "black") +
-    facet_grid(order_bound ~ group) +
-    geom_errorbar(data = d1,
-                  aes(x = alphabet_size,
-                      ymin = ci_95_min,
-                      ymax = ci_95_max,
-                      group = tone_len_ms), 
-                  position = position_dodge(width = 0.9), 
-                  width = 0.2) +
-    geom_point(data = d2, 
-               mapping = aes(x = alphabet_size, 
-                             y = median, 
-                             group = tone_len_ms),
-                             # shape = label),
-               position = position_dodge(width = 0.9),
-               fill = "white", alpha = 1, shape = 21) +
-    scale_x_discrete("Cycle length (tones)") +
-    scale_y_continuous("Response time (tones)") +
-    scale_fill_manual("Tone length (ms)",
-                      values = c("#E8E410", "#11A3FF", "#B50000") %>% rev,
-                      guide = FALSE) +
-    # scale_shape_manual("", values = 21) +
-    # scale_linetype_discrete("", guide = guide_legend(override.aes = list(
-    #   fill = "white"))) +
-    theme_classic() +
-    theme(aspect.ratio = 1,
-          panel.grid.major = element_line(colour = "lightgrey"))
+  d1 %>% 
+    mutate(plot_group = if_else(grepl("buffer", group, ignore.case = TRUE),
+                                "b", "a")) %>% 
+    group_by(plot_group) %>% 
+    group_split() %>% 
+    map(function(d) {
+      plot_group <- unique(d$plot_group)
+      ggplot(d) +
+        geom_bar(data = d,
+                 aes(x = alphabet_size, 
+                     y = mean, 
+                     fill = tone_len_ms),
+                 stat = "identity", position = "dodge", width = 0.9, colour = "black") +
+        facet_wrap(~ group, nrow = 1) +
+        geom_errorbar(data = d,
+                      aes(x = alphabet_size,
+                          ymin = ci_95_min,
+                          ymax = ci_95_max,
+                          group = tone_len_ms), 
+                      position = position_dodge(width = 0.9), 
+                      width = 0.2) +
+        geom_point(data = d2, 
+                   mapping = aes(x = alphabet_size, 
+                                 y = median, 
+                                 group = tone_len_ms),
+                   # shape = label),
+                   position = position_dodge(width = 0.9),
+                   fill = "white", alpha = 1, shape = 21) +
+        scale_x_discrete(if (plot_group == "b") "Cycle length (tones)" else "") +
+        scale_y_continuous("Response time (tones)") +
+        scale_fill_manual("Tone length (ms)",
+                          values = c("#E8E410", "#11A3FF", "#B50000") %>% rev,
+                          guide = FALSE) +
+        # scale_shape_manual("", values = 21) +
+        # scale_linetype_discrete("", guide = guide_legend(override.aes = list(
+        #   fill = "white"))) +
+        theme_classic() +
+        theme(aspect.ratio = 1,
+              panel.grid.major = element_line(colour = "lightgrey"))
+    })
 }

@@ -20,7 +20,7 @@ p_combined <- cowplot::plot_grid(p_subj, p_model[[1]], p_model[[2]],
                                  ncol = 1,
                                  rel_heights = c(1.6, 1, 1),
                                  labels = "AUTO")
-ggsave(plot = p_combined, filename = "output/by-cond.pdf", width = 6, height = 7.5)
+ggsave(plot = p_combined, filename = "output/by-cond.pdf", width = 6.5, height = 8)
 ggsave(plot = p_example_trial, filename = "output/example-trial.pdf", width = 5.5, height = 5.5)
 
 summary_subj %>% saveRDS("output/summary-subj.rds")

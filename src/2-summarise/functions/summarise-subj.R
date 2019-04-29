@@ -53,8 +53,8 @@ plot_trials <- function(dat_response) {
                  position = position_dodge(width = 0.9), 
                  width = 0.1,
                  fill = "white") +
-    scale_x_discrete("Alphabet size") +  
-    scale_y_continuous("Response time (in tones)") +
+    scale_x_discrete("Cycle length (tones)") +  
+    scale_y_continuous("Response time (tones)") +
     scale_fill_manual("Tone length (ms)",
                       values = c("#E8E410", "#11A3FF", "#B50000") %>% rev) +
     theme_classic() +

@@ -22,7 +22,7 @@ summarise_all <- function(model_summary, subj_summary) {
 #                fill = tone_len_ms)) +
 #     geom_bar(stat = "identity", position = "dodge", width = 0.9, colour = "black") +
 #     geom_errorbar(position = position_dodge(width = 0.9), width = 0.2) +
-#     scale_x_discrete("Alphabet size") +  
+#     scale_x_discrete("Cycle length (tones)") +  
 #     scale_y_continuous("Reaction time (tones)") +
 #     scale_fill_discrete("Tone length (ms)") +
 #     facet_wrap(~ label) +

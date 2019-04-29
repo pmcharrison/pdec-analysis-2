@@ -20,6 +20,6 @@ p_combined <- cowplot::plot_grid(p_subj, p_model, ncol = 1, rel_heights = c(1.2,
 ggsave(plot = p_combined, filename = "output/by-cond.eps", width = 7.5, height = 7.5)
 ggsave(plot = p_example_trial, filename = "output/example-trial.eps", width = 5.5, height = 5.5)
 
-summary_subj %>% write_csv("output/summary-subj.csv")
+summary_subj %>% saveRDS("output/summary-subj.rds")
 summary_model %>% select(- lag_tones ) %>% write_csv("output/summary-model.csv")
 dat_analysis %>% select(- res) %>% write_csv("output/model-par.csv")

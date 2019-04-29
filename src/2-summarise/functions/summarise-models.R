@@ -64,8 +64,8 @@ plot_model <- function(summary_model, summary_subj, ...) {
                              # shape = label),
                position = position_dodge(width = 0.9),
                fill = "white", alpha = 1, shape = 21) +
-    scale_x_discrete("Alphabet size") +
-    scale_y_continuous("Response time (in tones)") +
+    scale_x_discrete("Cycle length (tones)") +
+    scale_y_continuous("Response time (tones)") +
     scale_fill_manual("Tone length (ms)",
                       values = c("#E8E410", "#11A3FF", "#B50000") %>% rev,
                       guide = FALSE) +

@@ -1,5 +1,5 @@
 plot_example_trial <- function(x) {
-  filter(x, label == "L10 + exp.decay") %>% 
+  filter(x, label == "L4 + exp.decay") %>% 
     {.$res[[1]]} %>% 
     filter(alphabet_size == 10 & tone_len_ms == 50) %>% 
     {.$detail[[1]]$res[[1]]} %>% 

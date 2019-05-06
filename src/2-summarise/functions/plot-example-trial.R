@@ -43,16 +43,16 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
   if (lag) p <- p + ggtitle(glue("Lag = {x$change_point$lag_tones} tones")) 
   
   if (!is.na(x$info$trial$transition)) {
-    f <- function(x) factor(x, levels = c("Section boundary",
-                                          "Nominal transition",
+    f <- function(x) factor(x, levels = c("Nominal transition",
+                                          "Effective transition",
                                           "Detection of transition"))
     p <- p + 
       geom_vline(aes(xintercept = x$info$trial$transition,
-                     linetype = "Section boundary",
-                     colour = "Section boundary")) +
-      geom_vline(aes(xintercept = x$info$trial$transition + x$info$trial$alphabet_size,
                      linetype = "Nominal transition",
-                     colour = "Nominal transition"))
+                     colour = "Nominal transition")) +
+      geom_vline(aes(xintercept = x$info$trial$transition + x$info$trial$alphabet_size,
+                     linetype = "Effective transition",
+                     colour = "Effective transition"))
   }
   
   if (x$change_point$change_detected)
@@ -60,13 +60,13 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
                             colour = "Detection of transition", 
                             linetype = "Detection of transition"))
   
-  p <- p + scale_linetype_manual("", values = c(`Section boundary` = "solid",
-                                                `Nominal transition` = "dashed",
+  p <- p + scale_linetype_manual("", values = c(`Nominal transition` = "solid",
+                                                `Effective transition` = "dashed",
                                                 `Detection of transition` = "dotted"),
                                  guide = guide_legend(reverse = TRUE, 
                                                       label.position = "bottom"))
-  p <- p + scale_colour_manual("", values = c(`Section boundary` = "darkred",
-                                              `Nominal transition` = "darkred",
+  p <- p + scale_colour_manual("", values = c(`Nominal transition` = "darkred",
+                                              `Effective transition` = "darkred",
                                               `Detection of transition` = "darkred"),
                                guide = guide_legend(reverse = TRUE,
                                                     label.position = "bottom"))

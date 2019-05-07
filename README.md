@@ -50,8 +50,6 @@ devtools::install_github("pmcharrison/PPMdecay")
 2)  Compile the response data by running `src/0-compile/0-compile.R` in
     R.
 3)  Conduct the modeling by running `src/1-compile/1-analyse.R` in R.
-    This script takes a long time (\~ 2 days) to run, but the script
-    contains instructions about how to run a faster approximation.
 4)  Create the summary analyses by running
     `src/2-summarise/2-summarise.R` in R.
 

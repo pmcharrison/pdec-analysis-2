@@ -1,7 +1,8 @@
 label,group,buffer_time,buffer_items,buffer_rate,stm_half_life,stm_rate,ltm_rate,noise,order_bound,only_learn_from_buffer,only_predict_from_buffer,include
-"L4, no decay",Original PPM,0,0,0,999999,1,1,0,4,FALSE,FALSE,TRUE
-L4 + exp.decay,`+ Exponential decay,0,0,0,0.26,1,0,0,4,FALSE,FALSE,TRUE
-L4 + retrieval noise,`+ Retrieval noise,0,0,0,1.65,0.65,0,0.5,4,FALSE,FALSE,TRUE
-L4 + buffer 5,`5-item buffer,1000,5,2,1.45,0.7,0,0.5,4,TRUE,TRUE,TRUE
-L4 + buffer 10,`10-item buffer,1000,10,1.5,1.9,0.4,0,0.35,4,TRUE,TRUE,TRUE
-L4 + buffer 15,`15-item buffer,1000,15,1,3.5,0.6,0,0.8,4,TRUE,TRUE,TRUE
+"L4, no decay",Original PPM,0,0,0,999999,1,1,0,4,FALSE,FALSE,FALSE
+L4 + exp.decay,`+ Exponential decay,0,0,0,0.26,1,0,0,4,FALSE,FALSE,FALSE
+L4 + retrieval noise,`+ Retrieval noise,0,0,0,1.65,0.65,0,0.5,4,FALSE,FALSE,FALSE
+L4 + buffer 5,`5-item buffer,1000,5,2,1.45,0.7,0,0.5,4,TRUE,TRUE,FALSE
+L4 + buffer 10,`10-item buffer,1000,10,1.5,1.9,0.4,0,0.35,4,TRUE,TRUE,FALSE
+L4 + buffer 15,`15-item buffer,1000,15,1,3.5,0.6,0,0.8,4,TRUE,TRUE,FALSE
+L4 + buffer 20,`20-item buffer,1000,20,1,1,0.65,0,0.85,4,TRUE,TRUE,TRUE

@@ -28,10 +28,30 @@ summarise_subj <- function(dat) {
   
   res <- list(subj_vals = subj_vals,
               cond_means = cond_means,
+              d_prime = analyse_d_prime(dat),
               stat = do_stats_subj(subj_vals))
   
   class(res) <- c("summary_subj", class(res))
   res
+}
+
+analyse_d_prime <- function(dat) {
+  df <- dat %>% 
+    group_by(subj, alphabet_size, tone_len_ms) %>% 
+    summarise(d_prime = unique(d_prime)) %>% 
+    ungroup()
+  
+  anova <- df %>% 
+    mutate_at(c("subj", "alphabet_size", "tone_len_ms"), factor) %>% 
+    ez::ezANOVA(dv = d_prime,
+                wid = subj,
+                within = .(alphabet_size, tone_len_ms),
+                type = 3,
+                detailed = TRUE,
+                return_aov = TRUE)
+
+  list(data = df,
+       anova = anova)
 }
 
 plot_trials <- function(dat_response) {

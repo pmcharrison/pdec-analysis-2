@@ -12,8 +12,7 @@ do_stats_subj <- function(subj_vals) {
     wilcox = wilcox_subj(raw),
     friedman = friedman_subj(raw),
     anova = do_anova(raw),
-    condition_differences = get_condition_differences(raw),
-    d_prime = analyse_d_prime(raw)
+    condition_differences = get_condition_differences(raw)
   )
 }
 

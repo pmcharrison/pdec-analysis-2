@@ -7,7 +7,7 @@ for (f in list.files("src/2-summarise/functions", full.names = TRUE))
 dat_analysis <- readRDS("output/dat-analysis.rds")
 dat_response <- readRDS("output/dat-response.rds")
 
-summary_subj <- summarise_subj(dat_response) # update this
+summary_subj <- summarise_subj(dat_response)
 summary_model <- summarise_models(dat_analysis)
 
 p_trials <- plot_trials(dat_response)
@@ -16,11 +16,15 @@ p_model <- plot_model(summary_model, summary_subj)
 
 p_example_trial <- plot_example_trial(dat_analysis)
 
-p_combined <- cowplot::plot_grid(p_subj, p_model[[1]], p_model[[2]],
-                                 ncol = 1,
-                                 rel_heights = c(1.6, 1, 1),
-                                 labels = "AUTO")
-ggsave(plot = p_combined, filename = "output/by-cond.pdf", width = 6.5, height = 8)
+# p_combined <- cowplot::plot_grid(p_subj, p_model[[1]], p_model[[2]],
+#                                  ncol = 1,
+#                                  rel_heights = c(1.6, 1, 1),
+#                                  labels = "AUTO")
+# ggsave(plot = p_combined, filename = "output/by-cond.pdf", width = 6.5, height = 8)
+
+ggsave(plot = p_subj, filename = "output/behavioral.pdf", width = 4.75, height = 8)
+ggsave(plot = p_model, filename = "output/model.pdf", width = 4.5, height = 6)
+
 ggsave(plot = p_example_trial, filename = "output/example-trial.pdf", width = 5.5, height = 5.5)
 
 summary_subj %>% saveRDS("output/summary-subj.rds")

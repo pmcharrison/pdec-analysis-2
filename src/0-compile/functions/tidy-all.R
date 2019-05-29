@@ -1,7 +1,15 @@
 library(tidyverse)
 
 tidy_all <- function() {
-  read_delim("input/response/all.csv", delim = "\t", col_types = cols()) %>% 
+  read_delim("input/response/all.csv", 
+             delim = "\t", 
+             col_types = cols(subj = col_integer(),
+                              ` block` = col_integer(),
+                              ` speed` = col_integer(),
+                              ` trialN` = col_integer(),
+                              ` condi` = col_integer(),
+                              ` setID` = col_integer(),
+                              ` correct` = col_integer())) %>% 
     rename_all(~ gsub(" ", "", .)) %>% 
     rename(speed_i = speed,
            cond_i = condi,

@@ -14,13 +14,13 @@ check_subj <- function(dat) {
 
 check_2 <- function(dat) {
   x <- dat$all
-  for (i in seq_len(nrow(x))) {
+  plyr::l_ply(seq_len(nrow(x)), function(i) {
     y <- x$stim[[i]]
     select(y, subj, block, speed_i, cond_i) %>% 
       unique %T>%
       {stopifnot(nrow(.) == 1L)} %>% 
       expect_equal(x[i, ] %>% select(subj, block, speed_i, cond_i))
     expect_equal(y$tone_num, seq(from = 1, length.out = nrow(y)))
-  }
+  }, .progress = "text")
   invisible(TRUE)
 }

@@ -59,15 +59,15 @@ drop_supplementary <- function(dat) {
 
 get_rt_baselines_1 <- function(dat) {
   dat %>% 
-    group_by(subj) %>%
-    # group_by(subj, block) %>%
+    # group_by(subj) %>%
+    group_by(subj, block) %>%
     filter(cond == "step" & response == "hit" & include) %>% 
     summarise(rt_reference = mean(rt))
 }
 
 norm_reaction_times <- function(dat, rt_baselines_1) {
-  dat <- left_join(dat, rt_baselines_1, by = c("subj")) # used to join by block as well
-  # dat <- left_join(dat, rt_baselines_1, by = c("subj", "block")) # used to join by block as well
+  # dat <- left_join(dat, rt_baselines_1, by = c("subj")) # used to join by block as well
+  dat <- left_join(dat, rt_baselines_1, by = c("subj", "block")) # used to join by block as well
   dat %>% mutate(
     rt_norm = if_else(cond == "randreg", rt - rt_reference, rt),
     rt_norm_tones_from_transition = 1000 * rt_norm / tone_len_ms,

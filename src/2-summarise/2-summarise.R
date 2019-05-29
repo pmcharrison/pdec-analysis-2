@@ -7,6 +7,9 @@ for (f in list.files("src/2-summarise/functions", full.names = TRUE))
 dat_analysis <- readRDS("output/dat-analysis.rds")
 dat_response <- readRDS("output/dat-response.rds")
 
+model_misses <- tabulate_model_misses(dat_analysis)
+write_csv(model_misses, "output/model-misses.csv")
+
 summary_subj <- summarise_subj(dat_response)
 summary_model <- summarise_models(dat_analysis)
 

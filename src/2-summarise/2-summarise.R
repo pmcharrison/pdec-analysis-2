@@ -8,6 +8,8 @@ dat_analysis <- readRDS("output/dat-analysis.rds")
 dat_response <- readRDS("output/dat-response.rds")
 
 model_misses <- tabulate_model_misses(dat_analysis)
+if (any(model_misses$max_lag >= 50))
+  stop("Detected model lags greater than or equal to 50")
 write_csv(model_misses, "output/model-misses.csv")
 
 summary_subj <- summarise_subj(dat_response)
@@ -26,7 +28,7 @@ p_example_trial <- plot_example_trial(dat_analysis)
 # ggsave(plot = p_combined, filename = "output/by-cond.pdf", width = 6.5, height = 8)
 
 ggsave(plot = p_subj, filename = "output/behavioral.pdf", width = 4.75, height = 8)
-ggsave(plot = p_model, filename = "output/model.pdf", width = 4.5, height = 6)
+ggsave(plot = p_model, filename = "output/model-results.pdf", width = 4.5, height = 6)
 
 ggsave(plot = p_example_trial, filename = "output/example-trial.pdf", width = 5.5, height = 5.5)
 

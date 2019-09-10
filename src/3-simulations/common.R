@@ -2,6 +2,7 @@ library(tidyverse)
 library(ppm)
 library(extraDistr)
 library(markovchain)
+library(futile.logger)
 
 norm_dist <- function(x) x / sum(x)
 
@@ -159,31 +160,26 @@ new_ppm_par <- function(ltm_weight = 1,
   unlist(as.list(environment()))
 }
 
-optim_mod <- function(corpus_opt,
+optim_ppm <- function(ppm,
                       alphabet_size,
-                      ppm_starting_par,
-                      ppm_which_optim,
-                      ppm_optim_lower,
-                      ppm_optim_higher,
+                      corpus,
                       forget,
-                      xtol_abs = 1e-3,
+                      xtol_abs,
                       max_eval = 500,
                       ran_seed = 1) {
-  stopifnot(!anyDuplicated(ppm_which_optim),
-            all(ppm_which_optim %in% names(ppm_starting_par)),
-            length(ppm_optim_lower) == length(ppm_which_optim),
-            length(ppm_optim_higher) == length(ppm_which_optim))
-  
-  with_log("Generating corpus...", corpus <- generate_corpus(corpus_opt))
+  stopifnot(!anyDuplicated(ppm$which_optim),
+            all(ppm$which_optim %in% names(ppm$starting_par)),
+            length(ppm$optim_lower) == length(ppm$which_optim),
+            length(ppm$optim_higher) == length(ppm$which_optim))
   
   counter <- 1L
   eval_f <- function(par) {
-    all_par <- ppm_starting_par
-    all_par[ppm_which_optim] <- par
-    cost <- eval_ppm_mod(corpus = corpus,
+    all_par <- ppm$starting_par
+    all_par[ppm$which_optim] <- par
+    cost <- eval_ppm_mod(ppm_par = all_par,
+                         corpus = corpus,
                          forget = forget,
-                         alphabet_size = alphabet_size,
-                         ppm_par = all_par) %>% mean()
+                         alphabet_size = alphabet_size) %>% mean()
     flog.info("i = %i, par = [%s], cost = %.5f...", 
               counter,
               sprintf("%.3f", par) %>% paste(collapse = ", "), 
@@ -194,17 +190,19 @@ optim_mod <- function(corpus_opt,
   
   with_log("Optimising PPM model...", {
     nloptr::nloptr(
-      x0 = ppm_starting_par[ppm_which_optim],
+      x0 = ppm$starting_par[ppm$which_optim],
       eval_f = eval_f,
       eval_grad_f = NULL,
-      lb = ppm_optim_lower,
-      ub = ppm_optim_higher,
+      lb = ppm$optim_lower,
+      ub = ppm$optim_higher,
       opts = list(algorithm = "NLOPT_LN_SBPLX",
                   maxeval = max_eval,
                   ranseed = ran_seed,
                   xtol_abs = xtol_abs)
     )
-  })
+  })$solution %>%
+    set_names(ppm$which_optim) %>% 
+    insert_ppm_par(ppm$starting_par)
 }
 
 insert_ppm_par <- function(x, default_par = new_ppm_par()) {
@@ -220,45 +218,51 @@ new_corpus_opt <- function(alphabet_size,
   as.list(environment())
 }
 
-
-run_exp <- function(alphabet_size = 5,
-                    corpus_opt = new_corpus_opt(alphabet_size),
-                    ppm_starting_par = new_ppm_par(ltm_half_life = 15,
-                                                   ltm_weight = 1,
-                                                   stm_weight = 100),
-                    ppm_which_optim = c("ltm_half_life", "ltm_weight"),
-                    ppm_optim_lower = c(0.01, 0.01), 
-                    ppm_optim_higher = c(1e90, 10),
-                    forget = TRUE,
-                    xtol_abs = 1e-3) {
-  
-  optim_par <- optim_mod(corpus_opt = corpus_opt,
-                         alphabet_size = alphabet_size,
-                         ppm_starting_par = ppm_starting_par,
-                         ppm_which_optim = ppm_which_optim,
-                         ppm_optim_lower = ppm_optim_lower, 
-                         ppm_optim_higher = ppm_optim_higher,
-                         forget = forget)$solution %>% insert_ppm_par(ppm_starting_par)
-  
-  benchmark_par <- new_ppm_par()
-  
-  test_corpus <- generate_corpus(corpus_opt)
-  
-  tibble(
-    seq_id = seq_along(test_corpus),
-    mod_orig = eval_ppm_mod(test_corpus, 
-                            forget = forget, 
-                            alphabet_size = alphabet_size,
-                            ppm_par = benchmark_par),
-    mod_forget = eval_ppm_mod(test_corpus,
-                              forget = forget,
-                              alphabet_size = alphabet_size, 
-                              ppm_par = optim_par)
-  )
+new_ppm_optim <- function(starting_par, 
+                          which_optim, 
+                          optim_lower, 
+                          optim_higher) {
+  as.list(environment())
 }
 
 
-eval_ppm_mod <- function(corpus, forget, alphabet_size, ppm_par) {
+run_exp <- function(alphabet_size = 5,
+                    corpus_opt = new_corpus_opt(alphabet_size),
+                    ppm_optim = list(
+                      `+ Decay` = new_ppm_optim(
+                        starting_par = new_ppm_par(ltm_half_life = 15,
+                                                   ltm_weight = 1,
+                                                   stm_weight = 100),
+                        which_optim = c("ltm_half_life"),
+                        optim_lower = c(0.01), 
+                        optim_higher = c(1e90)
+                      )
+                    ),
+                    forget = TRUE,
+                    xtol_abs = 1e-3) {
+  stopifnot(!any(names(ppm_optim) %in% c("Original", "seq_id")))
+  
+  train_corpus <- with_log("Generating training corpus...", 
+                           generate_corpus(corpus_opt))
+  
+  optim_par <- 
+    map(ppm_optim, optim_ppm, alphabet_size, train_corpus, forget, xtol_abs)
+  
+  all_par <- c(list(Original = new_ppm_par()), optim_par)
+  stopifnot(is.list(all_par) & length(all_par) == 1 + length(optim_par))
+  
+  test_corpus <-  with_log("Generating test corpus...", 
+                           generate_corpus(corpus_opt))
+  
+  with_log("Evaluating models...", {
+    map(all_par, eval_ppm_mod, test_corpus, forget, alphabet_size) %>% 
+      bind_cols() %>% 
+      add_column(seq_id = seq_along(test_corpus), .before = 1)
+  })
+}
+
+
+eval_ppm_mod <- function(ppm_par, corpus, forget, alphabet_size) {
   new_mod <- function() new_ppm_decay(alphabet_size = alphabet_size, 
                                       order_bound = ppm_par[["order_bound"]],
                                       ltm_weight = ppm_par[["ltm_weight"]], 
@@ -289,4 +293,23 @@ with_log <- function(msg, expr) {
   finish <- Sys.time()
   futile.logger::flog.info("...done after %s.", format(finish - start, digits = 2))
   x
+}
+
+plot_exp <- function(exp) {
+  conditions <- setdiff(names(exp), "seq_id")
+  cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
+  exp %>% 
+    gather(key = "condition", value = "error_rate", - seq_id) %>%
+    mutate(accuracy = 1 - error_rate,
+           condition = factor(condition, levels = conditions)) %>%
+    ggplot(aes(x = condition, y = accuracy)) + 
+    geom_boxplot(outlier.shape = NA, 
+                 width = 0.3, size = 1.25, 
+                 fatten = 1.5, colour="grey70") + 
+    geom_point(colour = cols[1], shape = 21) +
+    geom_line(aes(group = seq_id), alpha = 1, linetype = "dashed", colour = cols[1]) + 
+    scale_x_discrete(NULL) + 
+    scale_y_continuous("Accuracy") +
+    theme(legend.position = "none",
+          aspect.ratio = 1)
 }

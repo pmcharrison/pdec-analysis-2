@@ -4,40 +4,32 @@ library(markovchain)
 library(futile.logger)
 
 source("src/3-simulations/common.R")
+theme_set(ggpubr::theme_pubr())
 
 # Recency effects are useful if the source transition probabilities
 # change randomly
 
-exp_1 <- run_exp(ppm_starting_par = new_ppm_par(ltm_half_life = 15,
-                                                ltm_weight = 1,
-                                                stm_duration = 0),
-                 ppm_which_optim = c("ltm_half_life"),
-                 ppm_optim_lower = c(0.01),
-                 ppm_optim_higher = c(1e90))
+exp_1 <- run_exp(
+  ppm_optim = list(
+    `+ Decay` = new_ppm_optim(starting_par = new_ppm_par(ltm_half_life = 15,
+                                                         ltm_weight = 1,
+                                                         stm_duration = 0),
+                              which_optim = c("ltm_half_life"),
+                              optim_lower = c(0.01),
+                              optim_higher = c(1e90))
+  )
+)
 
-exp_1 %>% 
-  rename(Original = mod_orig,
-         `+ Decay` = mod_forget) %>% 
-  ggpubr::ggpaired(cond1 = "Original",
-                   cond2 = "+ Decay",
-                   palette = viridis::viridis(2),
-                   fill = "condition",
-                   line.color = "grey",
-                   xlab = "",
-                   ylab = "Cross entropy",
-                   ggtheme = ggpubr::theme_pubr() +
-                     theme(legend.position = "none",
-                           aspect.ratio = 1))
+plot_exp(exp_1)
 
-
-x <- 
-  run_exp(ppm_starting_par = new_ppm_par(stm_weight = 1,
-                                         stm_duration = 10,
-                                         ltm_weight = 0.1,
-                                         ltm_half_life = 1e80),
-          ppm_which_optim = c("stm_duration", "ltm_weight"),
-          ppm_optim_lower = c(0, 1e-5),
-          ppm_optim_higher = c(1e80, 0.9999))
+# x <- 
+#   run_exp(ppm_starting_par = new_ppm_par(stm_weight = 1,
+#                                          stm_duration = 10,
+#                                          ltm_weight = 0.1,
+#                                          ltm_half_life = 1e80),
+#           ppm_which_optim = c("stm_duration", "ltm_weight"),
+#           ppm_optim_lower = c(0, 1e-5),
+#           ppm_optim_higher = c(1e80, 0.9999))
 
 
 # new_ppm_simple(alphabet_size, order_bound = 1) %>% 

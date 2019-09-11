@@ -259,18 +259,9 @@ new_ppm_optim <- function(starting_par,
 }
 
 
-run_exp <- function(alphabet_size = 5,
+run_exp <- function(ppm_optim,
+                    alphabet_size = 5,
                     corpus_generator = function() generate_corpus(alphabet_size),
-                    ppm_optim = list(
-                      `+ Decay` = new_ppm_optim(
-                        starting_par = new_ppm_par(ltm_half_life = 15,
-                                                   ltm_weight = 1,
-                                                   stm_weight = 100),
-                        which_optim = c("ltm_half_life"),
-                        optim_lower = c(0.01), 
-                        optim_higher = c(1e90)
-                      )
-                    ),
                     forget = TRUE,
                     ftol_rel = 1e-4,
                     metric = "incorrect",
@@ -390,13 +381,13 @@ get_plot_data <- function(exp, trim_sd) {
 
 get_x_lab <- function(exp) {
   if (exp$metric == "incorrect") 
-    "Performance improvement (change in hit rate)" else if (exp$metric == "information_content")
+    "Improvement in hit rate" else if (exp$metric == "information_content")
       "Performance improvement (bits)"else stop()
 }
 
 plot_exp <- function(exp, trim_sd = NA) {
   get_plot_data(exp, trim_sd = trim_sd) %>% 
-    plot_exp_data(get_x_lab(exp))
+    plot_exp_data(get_x_lab(exp), pct = exp$metric == "incorrect")
 }
 
 plot_multi_exp <- function(x, trim_sd = NA) {
@@ -404,25 +395,28 @@ plot_multi_exp <- function(x, trim_sd = NA) {
   stopifnot(!anyDuplicated(names(x)), 
             length(x) > 0,
             (map_chr(x, get_x_lab) %>% unique() %>% length() == 1))
+  pct <- x[[1]]$metric == "incorrect"
+  x_lab <- get_x_lab(x[[1]])
   map(x, get_plot_data, trim_sd = trim_sd) %>% 
     map2(names(x), ~ add_column(.x, exp = .y)) %>% 
     bind_rows() %>% 
     mutate(exp = factor(exp, levels = names(x))) %>% 
-    plot_exp_data(get_x_lab(x[[1]])) + 
+    plot_exp_data(x_lab = x_lab, pct = pct) + 
     facet_wrap(~ exp, ncol = 1)
 }
 
-plot_exp_data <- function(x, x_lab) {
+plot_exp_data <- function(x, x_lab, pct) {
   # cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
   x %>% 
     filter(plot) %>% 
     ggplot(aes(x = relative_score, y = condition, fill = condition)) + 
-    scale_x_continuous(x_lab) +
+    scale_x_continuous(x_lab, labels = if (pct) scales::percent else waiver()) +
     scale_y_discrete(NULL) +
     scale_fill_viridis_d(begin = 0.4) +
     ggridges::stat_density_ridges(quantile_lines = TRUE, quantiles = 2) +
     geom_vline(xintercept = 0, linetype = "dashed") + 
-    theme(legend.position = "none")
+    theme(legend.position = "none", 
+          plot.margin = unit(c(1, 1, 1, 1), "cm"))
 }
 
 get_harmony_corpus <- function(corpus, n = NA) {

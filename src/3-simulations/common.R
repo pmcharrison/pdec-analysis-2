@@ -200,7 +200,7 @@ optim_ppm <- function(ppm,
                       alphabet_size,
                       corpus,
                       forget,
-                      xtol_abs,
+                      ftol_rel,
                       metric,
                       progress,
                       max_eval = 500,
@@ -238,7 +238,7 @@ optim_ppm <- function(ppm,
       opts = list(algorithm = "NLOPT_LN_SBPLX",
                   maxeval = max_eval,
                   ranseed = ran_seed,
-                  xtol_abs = xtol_abs)
+                  ftol_rel = ftol_rel)
     )
   })$solution %>%
     set_names(ppm$which_optim) %>% 
@@ -272,7 +272,7 @@ run_exp <- function(alphabet_size = 5,
                       )
                     ),
                     forget = TRUE,
-                    xtol_abs = 1e-3,
+                    ftol_rel = 1e-4,
                     metric = "incorrect",
                     progress = FALSE) {
   stopifnot(!any(names(ppm_optim) %in% c("Original", "seq_id")))
@@ -282,7 +282,7 @@ run_exp <- function(alphabet_size = 5,
   optim_par <- 
     map(ppm_optim, 
         optim_ppm, alphabet_size, train_corpus,
-        forget, xtol_abs, metric, progress)
+        forget, ftol_rel, metric, progress)
   
   all_par <- c(list(Original = new_ppm_par()), optim_par)
   stopifnot(is.list(all_par) & length(all_par) == 1 + length(optim_par))
@@ -398,12 +398,14 @@ plot_exp_2 <- function(exp) {
   
 }
 
-get_harmony_corpus <- function(id) {
-  stopifnot(id %in% c("classical_1", "popular_1", "jazz_1"))
-  input <- hcorp::get_corpus(id)
+get_harmony_corpus <- function(corpus, n = NA) {
+  input <- if (is.na(n)) corpus else withr::with_seed(1, sample(corpus, n))
   alphabet <- input %>% do.call(c, .) %>% unique() %>% sort()
   seq_lengths <- purrr::map_int(input, length)
-  seq_times <- cumsum(c(0L, seq_lengths))[- length(input)]
+  max_seq_length <- max(seq_lengths)
+  ceil_max_seq_length <- 100 * ceiling(max_seq_length / 100)
+  inter_onset_interval <- 2 * ceil_max_seq_length
+  seq_times <- seq(from = 0, by = inter_onset_interval, length.out = length(input))
   corpus <- input %>% 
     map(~ as.integer(factor(.), levels = alphabet)) %>% 
     map2(., seq_times, function(sequence, start_time) {
@@ -412,5 +414,8 @@ get_harmony_corpus <- function(id) {
              symbol = sequence)
     })
   list(alphabet = alphabet,
-       corpus = corpus)
+       corpus = corpus,
+       max_seq_length = max_seq_length,
+       ceil_max_seq_length = ceil_max_seq_length,
+       inter_onset_interval = inter_onset_interval)
 }

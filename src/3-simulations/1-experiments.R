@@ -6,6 +6,9 @@ library(futile.logger)
 source("src/3-simulations/common.R")
 theme_set(ggpubr::theme_pubr())
 
+out_dir <- "output/simulations"
+R.utils::mkdirs(out_dir)
+
 # Recency effects are useful if the source transition probabilities
 # change randomly
 
@@ -24,6 +27,7 @@ exp_1 <-
           ftol_rel = 1e-5, 
           metric = "incorrect")
 plot_exp(exp_1)
+saveRDS(exp_1, file.path(out_dir, "exp-1.rds"))
 
 # Corpus modelling - long-term learning is useful if there is 
 # shared syntax underlying the sequence in addition to local 
@@ -76,6 +80,8 @@ exp_2_res <-
        }))
 
 plot_multi_exp(exp_2_res, trim_sd = 3)
+saveRDS(exp_2_res, file.path(out_dir, "exp-2.rds"))
+saveRDS(exp_2_corpora, file.path(out_dir, "exp-2-corpora.rds"))
 
 # t.test(exp_2b$data$`+ Decay`,
 #        exp_2b$data$`+ Long-term learning`,

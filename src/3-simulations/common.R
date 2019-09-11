@@ -57,60 +57,49 @@ get_bigram_probs <- function(mod, unigram_probs, alphabet_size) {
 }
 
 plot_markov_model <- function(mod,
-                              heights = c(0.25, 0.75)) {
+                              heights = c(0.25, 0.75),
+                              y_label = TRUE) {
   alphabet_size <- length(mod@states)
   unigram_probs <- get_unigram_probs(mod)
   bigram_probs <- get_bigram_probs(mod, unigram_probs, alphabet_size)
   
-  breaks <- seq(
-    from = min(bigram_probs$probability) %>% multiply_by(10) %>% floor() %>% divide_by(10),
-    to = max(bigram_probs$probability) %>% multiply_by(10) %>% ceiling() %>% divide_by(10),
-    by = 0.1
-  )
+  # breaks <- seq(
+  #   from = min(bigram_probs$probability) %>% multiply_by(10) %>% floor() %>% divide_by(10),
+  #   to = max(bigram_probs$probability) %>% multiply_by(10) %>% ceiling() %>% divide_by(10),
+  #   by = 0.1
+  # )
   
   bigram_fill_scale <- 
-    ggplot2::scale_fill_viridis_c("Probability", 
-                                  breaks = breaks, limits = c(min(breaks), 
-                                                              max(breaks)))
+    ggplot2::scale_fill_viridis_c(
+      "Probability", 
+      breaks = c(0, 0.5, 1), 
+      # limits = c(min(breaks), max(breaks)),
+      limits = c(0, 1)
+    )
   
-  egg::ggarrange(tibble(elt_1 = seq_len(alphabet_size),
-                        probability = unigram_probs) %>% ppm:::plot_unigrams(),
-                 ppm:::plot_bigrams(bigram_probs, bigram_fill_scale, relative = FALSE),
+  unigram_plot <- tibble(elt_1 = seq_len(alphabet_size),
+                         probability = unigram_probs) %>%
+    ppm:::plot_unigrams() + 
+    scale_y_continuous(if (y_label) "Probability" else "", 
+                       limits = c(0, 1),
+                       breaks = c(0, 0.5, 1))
+  
+  bigram_plot <- ppm:::plot_bigrams(bigram_probs, bigram_fill_scale, relative = FALSE)
+  if (!y_label) bigram_plot <- bigram_plot + scale_y_continuous("")
+  
+  egg::ggarrange(unigram_plot,
+                 bigram_plot,
                  ncol = 1,
                  heights = heights)
 }
 
-plot_bigrams <- function(x, fill_scale) {
-  alphabet <- sort(unique(x$elt_1))
-  ggplot2::ggplot(x, ggplot2::aes_string(
-    x = "elt_1", y = "elt_2", fill = "relative_probability")) +
-    ggplot2::geom_tile(colour = "black", size = 0.5) +
-    ggplot2::scale_x_continuous(breaks = alphabet,
-                                minor_breaks = NULL,
-                                name = "Continuation") +
-    ggplot2::scale_y_continuous(breaks = alphabet,
-                                minor_breaks = NULL,
-                                name = "Context") +
-    fill_scale +
-    ggplot2::theme(legend.position = "bottom",
-                   legend.justification = "centre") +
-    ggplot2::guides(fill = ggplot2::guide_colourbar(title.position = "top", 
-                                                    # hjust = 0.5, # centres the title horizontally
-                                                    title.hjust = 0,
-                                                    label.position = "bottom",
-                                                    ticks.colour = "black",
-                                                    ticks.linewidth = 1,
-                                                    frame.colour = "black",
-                                                    frame.linewidth = 1)) 
-}
-
-plot_unigrams <- function(x) {
-  alphabet <- sort(unique(x$elt_1))
-  ggplot2::ggplot(x, ggplot2::aes_string(x = "elt_1", y = "probability")) +
-    ggplot2::geom_bar(stat = "identity", colour = "black", fill = "#289b87") +
-    ggplot2::scale_x_continuous(breaks = alphabet, minor_breaks = NULL, name = NULL) +
-    ggplot2::scale_y_continuous("Probability")
-}
+# plot_unigrams <- function(x) {
+#   alphabet <- sort(unique(x$elt_1))
+#   ggplot2::ggplot(x, ggplot2::aes_string(x = "elt_1", y = "probability")) +
+#     ggplot2::geom_bar(stat = "identity", colour = "black", fill = "#289b87") +
+#     ggplot2::scale_x_continuous(breaks = alphabet, minor_breaks = NULL, name = NULL) +
+#     ggplot2::scale_y_continuous("Probability", limits = c(0, 1))
+# }
 
 
 generate_seq <- function(alphabet_size, num_events, change_prob,
@@ -288,7 +277,11 @@ run_exp <- function(ppm_optim,
   
   list(data = data,
        par = all_par,
-       metric = metric)
+       metric = metric,
+       alphabet_size = alphabet_size, 
+       forget = forget, 
+       ftol_rel = ftol_rel,
+       ppm_optim = ppm_optim)
 }
 
 
@@ -339,29 +332,29 @@ with_log <- function(msg, expr) {
   x
 }
 
-# plot_exp_old <- function(exp, alpha = 1, linetype = "dashed") {
-#   conditions <- setdiff(names(exp$data), "seq_id")
-#   cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
-#   stopifnot(exp$metric %in% c("incorrect", "information_content"))
-#   exp$data %>% 
-#     gather(key = "condition", value = "score", - seq_id) %>%
-#     mutate(score = if (exp$metric == "incorrect") 1 - score else score,
-#            condition = factor(condition, levels = conditions)) %>%
-#     ggplot(aes_string(x = "condition", y = "score")) +
-#     geom_boxplot(outlier.shape = NA, 
-#                  width = 0.3, size = 1.25, 
-#                  fatten = 1.5, colour = "grey70") + 
-#     geom_point(colour = cols[1], shape = 21) +
-#     geom_line(aes(group = seq_id), alpha = alpha, linetype = linetype, colour = cols[1]) + 
-#     scale_x_discrete(NULL) +
-#     scale_y_continuous(
-#       if (exp$metric == "incorrect") 
-#         "Accuracy" else if (exp$metric == "information_content")
-#           "Cross entropy (bits)"else stop()
-#     ) +
-#     theme(legend.position = "none",
-#           aspect.ratio = 1)
-# }
+plot_exp_old <- function(exp, alpha = 1, linetype = "dashed") {
+  conditions <- setdiff(names(exp$data), "seq_id")
+  cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
+  stopifnot(exp$metric %in% c("incorrect", "information_content"))
+  exp$data %>%
+    gather(key = "condition", value = "score", - seq_id) %>%
+    mutate(score = if (exp$metric == "incorrect") 100 * (1 - score) else score,
+           condition = factor(condition, levels = conditions)) %>%
+    ggplot(aes_string(x = "condition", y = "score")) +
+    geom_boxplot(outlier.shape = NA,
+                 width = 0.3, size = 1.25,
+                 fatten = 1.5, colour = "grey70") +
+    geom_point(colour = cols[1], shape = 21) +
+    geom_line(aes(group = seq_id), alpha = alpha, linetype = linetype, colour = cols[1]) +
+    scale_x_discrete(NULL) +
+    scale_y_continuous(
+      if (exp$metric == "incorrect")
+        "Accuracy (%)" else if (exp$metric == "information_content")
+          "Cross entropy (bits)" else stop()
+    ) +
+    theme(legend.position = "none",
+          aspect.ratio = 1)
+}
 
 get_plot_data <- function(exp, trim_sd) {
   conditions <- setdiff(names(exp$data), c("seq_id", "Original"))
@@ -381,13 +374,13 @@ get_plot_data <- function(exp, trim_sd) {
 
 get_x_lab <- function(exp) {
   if (exp$metric == "incorrect") 
-    "Improvement in hit rate" else if (exp$metric == "information_content")
+    "Accuracy change (%)" else if (exp$metric == "information_content")
       "Performance improvement (bits)"else stop()
 }
 
 plot_exp <- function(exp, trim_sd = NA) {
   get_plot_data(exp, trim_sd = trim_sd) %>% 
-    plot_exp_data(get_x_lab(exp), pct = exp$metric == "incorrect")
+    plot_exp_data(get_x_lab(exp), pct = exp$metric == "incorrect", single = TRUE)
 }
 
 plot_multi_exp <- function(x, trim_sd = NA) {
@@ -401,22 +394,30 @@ plot_multi_exp <- function(x, trim_sd = NA) {
     map2(names(x), ~ add_column(.x, exp = .y)) %>% 
     bind_rows() %>% 
     mutate(exp = factor(exp, levels = names(x))) %>% 
-    plot_exp_data(x_lab = x_lab, pct = pct) + 
+    plot_exp_data(x_lab = x_lab, pct = pct, single = FALSE) + 
     facet_wrap(~ exp, ncol = 1)
 }
 
-plot_exp_data <- function(x, x_lab, pct) {
+plot_exp_data <- function(x, x_lab, pct, single,
+                          scale = if (single && pct) 200 else 1) {
   # cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
-  x %>% 
+  p <- x %>% 
     filter(plot) %>% 
+    mutate(condition = if (single) "" else condition,
+           relative_score = if (pct) relative_score * 100 else relative_score) %>% 
     ggplot(aes(x = relative_score, y = condition, fill = condition)) + 
-    scale_x_continuous(x_lab, labels = if (pct) scales::percent else waiver()) +
-    scale_y_discrete(NULL) +
+    scale_x_continuous(x_lab) +
     scale_fill_viridis_d(begin = 0.4) +
-    ggridges::stat_density_ridges(quantile_lines = TRUE, quantiles = 2) +
-    geom_vline(xintercept = 0, linetype = "dashed") + 
+    ggridges::geom_density_ridges(quantile_lines = TRUE,
+                                  quantiles = 2,
+                                  scale = scale) +
+    geom_vline(xintercept = 0, linetype = "dashed") +
+    scale_y_discrete(if (single) "Density") +
     theme(legend.position = "none", 
           plot.margin = unit(c(1, 1, 1, 1), "cm"))
+  if (single) p <- p +
+      theme(axis.ticks.y = element_blank())
+  p
 }
 
 get_harmony_corpus <- function(corpus, n = NA) {
@@ -438,5 +439,29 @@ get_harmony_corpus <- function(corpus, n = NA) {
        corpus = corpus,
        max_seq_length = max_seq_length,
        ceil_max_seq_length = ceil_max_seq_length,
-       inter_onset_interval = inter_onset_interval)
+       inter_onset_interval = inter_onset_interval,
+       names = map_chr(input, ~ hrep::metadata(.)$description))
 }
+
+plot_markov_model_series <- function(alphabet_size = 5, 
+                                     concentration = 1, 
+                                     seed = 1) {
+  withr::with_seed(seed, {
+    f <- function(y_label) {
+      generate_markov_model(
+        alphabet_size = 5,
+        alpha_1 = rep(0.1, times = 5),
+        alpha_2 = map(seq_len(5), ~ rep(0.1, times = 5))
+      ) %>% plot_markov_model(y_label = y_label)
+    }
+    
+    cowplot::plot_grid(
+      f(y_label = TRUE),
+      f(y_label = FALSE),
+      f(y_label = FALSE),
+      nrow = 1,
+      scale = 0.8
+    )
+  })
+}
+

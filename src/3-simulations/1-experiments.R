@@ -21,46 +21,61 @@ exp_1 <- run_exp(ppm_optim = list(`+ Decay` = par_decay))
 plot_exp(exp_1)
 
 
-## Corpus modelling
+# Corpus modelling - long-term learning is useful if there is 
+# shared syntax underlying the sequence in addition to local 
+# variation
 
-par_music_stm <- function(ceil_max_seq_length) {
+par_music_stm <-
   new_ppm_optim(
     starting_par = new_ppm_par(stm_weight = 1, 
-                               stm_duration = ceil_max_seq_length,
-                               ltm_weight = 0.5, 
-                               ltm_half_life = 1e-50,
+                               stm_duration = 0,
+                               ltm_weight = 1, 
+                               ltm_half_life = 50,
                                ltm_asymptote = 0,
                                order_bound = 4),
-    which_optim = c("ltm_weight"),
+    which_optim = c("ltm_half_life"),
     optim_lower = c(0.0001),
-    optim_higher = c(1)
+    optim_higher = c(1e60)
   )
-}
 
-par_music_ltm <- function(ceil_max_seq_length) {
+par_music_ltm <-
   new_ppm_optim(
     starting_par = new_ppm_par(stm_weight = 1, 
-                               stm_duration = ceil_max_seq_length,
-                               ltm_weight = 0.5, 
-                               ltm_half_life = 1e-50,
-                               ltm_asymptote = 0,
+                               stm_duration = 0,
+                               ltm_weight = 1, 
+                               ltm_half_life = 15,
+                               ltm_asymptote = 0.5,
                                order_bound = 4),
-    which_optim = c("ltm_weight", "ltm_asymptote"),
+    which_optim = c("ltm_half_life", "ltm_asymptote"),
     optim_lower = c(0.0001, 0),
-    optim_higher = c(1, 1)
+    optim_higher = c(1e60, 1)
   )
-}
+
+# par_music_ltm <- function(ceil_max_seq_length) {
+#   new_ppm_optim(
+#     starting_par = new_ppm_par(stm_weight = 1, 
+#                                stm_duration = ceil_max_seq_length,
+#                                ltm_weight = 0.5, 
+#                                ltm_half_life = 1e-50,
+#                                ltm_asymptote = 0,
+#                                order_bound = 4),
+#     which_optim = c("ltm_weight", "ltm_asymptote"),
+#     optim_lower = c(0.0001, 0),
+#     optim_higher = c(1, 1)
+#   )
+# }
 
 popular_1 <- get_harmony_corpus(hcorp::popular_1, n = 100)
 
 exp_2 <- run_exp(
   alphabet_size = length(popular_1$alphabet), 
   corpus_generator = function() popular_1$corpus, 
-  ppm_optim = list("+ Decay" = par_music_stm(popular_1$ceil_max_seq_length),
-                   "+ Long-term learning" = par_music_ltm(popular_1$ceil_max_seq_length)),
+  ppm_optim = list("+ Decay" = par_music_stm,
+                   "+ Long-term learning" = par_music_ltm),
   forget = FALSE,
   metric = "information_content",
-  progress = TRUE
+  progress = TRUE,
+  ftol_rel = 1e-3
 )
 plot_exp(exp_2, alpha = 0.25, linetype = "solid")
 plot_exp_2(exp_2)
@@ -68,7 +83,7 @@ plot_exp_2(exp_2)
 
 jazz_1 <- get_harmony_corpus(hcorp::jazz_1, n = 100)
 exp_2b <- run_exp(alphabet_size = length(jazz_1$alphabet), 
-                  corpus_generator = function() jazz_1$corpus[1:100], 
+                  corpus_generator = function() jazz_1$corpus, 
                   ppm_optim = list("+ Decay" = par_music_stm,
                                    "+ Long-term learning" = par_music_ltm),
                   forget = FALSE,
@@ -82,7 +97,7 @@ t.test(exp_2b$data$`+ Decay`,
 
 classical_1 <- get_harmony_corpus(hcorp::classical_1[1:370], n = 100) # Bach chorales
 exp_2c <- run_exp(alphabet_size = length(classical_1$alphabet), 
-                  corpus_generator = function() classical_1$corpus[1:370], 
+                  corpus_generator = function() classical_1$corpus, 
                   ppm_optim = list("+ Decay" = par_music_stm,
                                    "+ Long-term learning" = par_music_ltm),
                   forget = FALSE,

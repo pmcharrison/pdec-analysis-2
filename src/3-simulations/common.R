@@ -319,7 +319,7 @@ eval_ppm_mod <- function(ppm_par, corpus, forget, alphabet_size, metric, progres
   mod <- new_mod()
   res <- rep(as.numeric(NA), times = length(corpus))
   if (progress) pb <- utils::txtProgressBar(max = length(corpus), style = 3)
-    
+  
   for (i in seq_along(corpus)) {
     if (forget) mod <- new_mod()
     x <- corpus[[i]]
@@ -348,54 +348,81 @@ with_log <- function(msg, expr) {
   x
 }
 
-plot_exp <- function(exp, alpha = 1, linetype = "dashed") {
-  conditions <- setdiff(names(exp$data), "seq_id")
-  cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
-  stopifnot(exp$metric %in% c("incorrect", "information_content"))
-  exp$data %>% 
-    gather(key = "condition", value = "score", - seq_id) %>%
-    mutate(score = if (exp$metric == "incorrect") 1 - score else score,
-           condition = factor(condition, levels = conditions)) %>%
-    ggplot(aes_string(x = "condition", y = "score")) +
-    geom_boxplot(outlier.shape = NA, 
-                 width = 0.3, size = 1.25, 
-                 fatten = 1.5, colour = "grey70") + 
-    geom_point(colour = cols[1], shape = 21) +
-    geom_line(aes(group = seq_id), alpha = alpha, linetype = linetype, colour = cols[1]) + 
-    scale_x_discrete(NULL) +
-    scale_y_continuous(
-      if (exp$metric == "incorrect") 
-        "Accuracy" else if (exp$metric == "information_content")
-          "Cross entropy (bits)"else stop()
-    ) +
-    theme(legend.position = "none",
-          aspect.ratio = 1)
-}
+# plot_exp_old <- function(exp, alpha = 1, linetype = "dashed") {
+#   conditions <- setdiff(names(exp$data), "seq_id")
+#   cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
+#   stopifnot(exp$metric %in% c("incorrect", "information_content"))
+#   exp$data %>% 
+#     gather(key = "condition", value = "score", - seq_id) %>%
+#     mutate(score = if (exp$metric == "incorrect") 1 - score else score,
+#            condition = factor(condition, levels = conditions)) %>%
+#     ggplot(aes_string(x = "condition", y = "score")) +
+#     geom_boxplot(outlier.shape = NA, 
+#                  width = 0.3, size = 1.25, 
+#                  fatten = 1.5, colour = "grey70") + 
+#     geom_point(colour = cols[1], shape = 21) +
+#     geom_line(aes(group = seq_id), alpha = alpha, linetype = linetype, colour = cols[1]) + 
+#     scale_x_discrete(NULL) +
+#     scale_y_continuous(
+#       if (exp$metric == "incorrect") 
+#         "Accuracy" else if (exp$metric == "information_content")
+#           "Cross entropy (bits)"else stop()
+#     ) +
+#     theme(legend.position = "none",
+#           aspect.ratio = 1)
+# }
 
-plot_exp_2 <- function(exp) {
+get_plot_data <- function(exp, trim_sd) {
   conditions <- setdiff(names(exp$data), c("seq_id", "Original"))
-  cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
   stopifnot(exp$metric %in% c("incorrect", "information_content"))
-  x_lab <- sprintf(
-    "Relative %s",
-    if (exp$metric == "incorrect") 
-    "accuracy" else if (exp$metric == "information_content")
-      "cross entropy (bits)"else stop()
-  )
   exp$data %>% 
     pmap(function(...) {
       args <- list(...)
       tibble(seq_id = args$seq_id,
              condition = conditions,
-             relative_score = map_dbl(conditions, ~ args[[.]] - args$Original))
+             relative_score = map_dbl(conditions, ~ args$Original - args[[.]]))
     }) %>% 
     bind_rows() %>% 
-    ggplot(aes(x = relative_score, y = condition)) + 
+    group_by(condition) %>% 
+    mutate(plot = is.na(trim_sd) | abs(scale(relative_score)) < trim_sd) %>% 
+    ungroup()
+}
+
+get_x_lab <- function(exp) {
+  if (exp$metric == "incorrect") 
+    "Performance improvement (change in hit rate)" else if (exp$metric == "information_content")
+      "Performance improvement (bits)"else stop()
+}
+
+plot_exp <- function(exp, trim_sd = NA) {
+  get_plot_data(exp, trim_sd = trim_sd) %>% 
+    plot_exp_data(get_x_lab(exp))
+}
+
+plot_multi_exp <- function(x, trim_sd = NA) {
+  if (is.null(names(x)) || !is.list(x)) stop("x must be a named list")
+  stopifnot(!anyDuplicated(names(x)), 
+            length(x) > 0,
+            (map_chr(x, get_x_lab) %>% unique() %>% length() == 1))
+  map(x, get_plot_data, trim_sd = trim_sd) %>% 
+    map2(names(x), ~ add_column(.x, exp = .y)) %>% 
+    bind_rows() %>% 
+    mutate(exp = factor(exp, levels = names(x))) %>% 
+    plot_exp_data(get_x_lab(x[[1]])) + 
+    facet_wrap(~ exp, ncol = 1)
+}
+
+plot_exp_data <- function(x, x_lab) {
+  # cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
+  x %>% 
+    filter(plot) %>% 
+    ggplot(aes(x = relative_score, y = condition, fill = condition)) + 
     scale_x_continuous(x_lab) +
-    scale_y_discrete("Condition") +
+    scale_y_discrete(NULL) +
+    scale_fill_viridis_d(begin = 0.4) +
     ggridges::stat_density_ridges(quantile_lines = TRUE, quantiles = 2) +
-    geom_vline(xintercept = 0, linetype = "dashed")
-  
+    geom_vline(xintercept = 0, linetype = "dashed") + 
+    theme(legend.position = "none")
 }
 
 get_harmony_corpus <- function(corpus, n = NA) {

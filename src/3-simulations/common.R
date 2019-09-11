@@ -23,18 +23,15 @@ norm_dist <- function(x) x / sum(x)
 #' 
 #' @md
 generate_markov_model <- function(alphabet_size, 
-                                  concentration_1 = 1, 
-                                  concentration_2 = 1) {
+                                  alpha_1,
+                                  alpha_2) {
   
   checkmate::qassert(alphabet_size, "X1[2,)")
-  checkmate::qassert(concentration_1, "N1(0,)")
-  checkmate::qassert(concentration_2, "N1(0,)")
-  alpha_1 <- rep(concentration_1, times = alphabet_size)
-  alpha_2 <- rep(concentration_2, times = alphabet_size)
   
   order_1 <- as.numeric(rdirichlet(1, alpha_1))
   order_2 <-
-    map(seq_len(alphabet_size), ~ 0.5 * (order_1 + as.numeric(rdirichlet(1, alpha_2)))) %>% 
+    map2(seq_len(alphabet_size), alpha_2,
+         ~ 0.5 * (order_1 + as.numeric(rdirichlet(1, .y)))) %>% 
     map(norm_dist) %>% 
     do.call(rbind, .)
   
@@ -116,17 +113,17 @@ plot_unigrams <- function(x) {
 }
 
 
-generate_seq <- function(alphabet_size, num_events, change_prob) {
+generate_seq <- function(alphabet_size, num_events, change_prob,
+                         alpha_1, alpha_2, time_0) {
   df <- 
     tibble(id = seq_len(num_events),
+           time = seq(from = time_0, length.out = num_events),
            change = as.logical(rbern(num_events, prob = change_prob)),
            segment = cumsum(change) - change[1] + 1,
            symbol = as.integer(NA))
   
   for (segment in unique(df$segment)) {
-    mod <- generate_markov_model(alphabet_size, 
-                                 concentration_1 = 0.1,
-                                 concentration_2 = 0.1)
+    mod <- generate_markov_model(alphabet_size, alpha_1, alpha_2)
     ind_start <- which(df$segment == segment) %>% first()
     ind_end <- which(df$segment == segment) %>% last()
     prev_event <- if (segment == 1L) {
@@ -145,15 +142,54 @@ generate_seq <- function(alphabet_size, num_events, change_prob) {
   df
 }
 
-generate_corpus <- function(corpus_opt) {
-  map(seq_len(corpus_opt$num_seq),
-      ~ generate_seq(alphabet_size = corpus_opt$alphabet_size, 
-                     num_events = corpus_opt$num_events, 
-                     change_prob = corpus_opt$change_prob))
+generate_corpus <- function(
+  alphabet_size, 
+  num_seq = 50, 
+  num_events = 500,
+  change_prob = 0.01,
+  informative_prior = FALSE,
+  prior_scale = 10,
+  prior_alpha = 0.5,
+  alpha_1 = rep(0.1, times = alphabet_size),
+  alpha_2 = map(seq_len(alphabet_size), ~ rep(0.1, times = alphabet_size))
+) {
+  
+  checkmate::qassert(informative_prior, "B1")
+  stopifnot(is.numeric(alpha_1), is.list(alpha_2),
+            length(alpha_1) == alphabet_size,
+            length(alpha_2) == alphabet_size,
+            all(map_int(alpha_2, length) == alphabet_size))
+  as.list(environment())
+  
+  map(seq_len(num_seq), function(seq_i) {
+    if (informative_prior) {
+      sample_alphas <- function(...)
+        as.numeric(rdirichlet(1, rep(prior_alpha, 
+                                     times = alphabet_size))) %>% 
+        multiply_by(prior_scale)
+      
+      # runif(alphabet_size,
+      #       min = prior_min,
+      #       max = prior_max)
+      
+      alpha_1 <- sample_alphas()
+      alpha_2 <- map(seq_len(alphabet_size), sample_alphas)
+    } else {
+      alpha_1 <- alpha_1
+      alpha_2 <- alpha_2
+    }
+    generate_seq(alphabet_size = alphabet_size, 
+                 num_events = num_events, 
+                 change_prob = change_prob,
+                 alpha_1 = alpha_1,
+                 alpha_2 = alpha_2,
+                 time_0 = (seq_i - 1) * num_events)
+  })
 }
 
 new_ppm_par <- function(ltm_weight = 1,
                         ltm_half_life = 1e80,
+                        ltm_asymptote = 0,
                         stm_weight = 1, 
                         stm_duration = 0,
                         order_bound = 1) {
@@ -165,6 +201,8 @@ optim_ppm <- function(ppm,
                       corpus,
                       forget,
                       xtol_abs,
+                      metric,
+                      progress,
                       max_eval = 500,
                       ran_seed = 1) {
   stopifnot(!anyDuplicated(ppm$which_optim),
@@ -179,7 +217,9 @@ optim_ppm <- function(ppm,
     cost <- eval_ppm_mod(ppm_par = all_par,
                          corpus = corpus,
                          forget = forget,
-                         alphabet_size = alphabet_size) %>% mean()
+                         alphabet_size = alphabet_size,
+                         metric = metric,
+                         progress = progress) %>% mean()
     flog.info("i = %i, par = [%s], cost = %.5f...", 
               counter,
               sprintf("%.3f", par) %>% paste(collapse = ", "), 
@@ -211,13 +251,6 @@ insert_ppm_par <- function(x, default_par = new_ppm_par()) {
   par
 }
 
-new_corpus_opt <- function(alphabet_size, 
-                           num_seq = 50, 
-                           num_events = 500,
-                           change_prob = 0.01) {
-  as.list(environment())
-}
-
 new_ppm_optim <- function(starting_par, 
                           which_optim, 
                           optim_lower, 
@@ -227,7 +260,7 @@ new_ppm_optim <- function(starting_par,
 
 
 run_exp <- function(alphabet_size = 5,
-                    corpus_opt = new_corpus_opt(alphabet_size),
+                    corpus_generator = function() generate_corpus(alphabet_size),
                     ppm_optim = list(
                       `+ Decay` = new_ppm_optim(
                         starting_par = new_ppm_par(ltm_half_life = 15,
@@ -239,51 +272,71 @@ run_exp <- function(alphabet_size = 5,
                       )
                     ),
                     forget = TRUE,
-                    xtol_abs = 1e-3) {
+                    xtol_abs = 1e-3,
+                    metric = "incorrect",
+                    progress = FALSE) {
   stopifnot(!any(names(ppm_optim) %in% c("Original", "seq_id")))
   
-  train_corpus <- with_log("Generating training corpus...", 
-                           generate_corpus(corpus_opt))
+  train_corpus <- with_log("Generating training corpus...", corpus_generator())
   
   optim_par <- 
-    map(ppm_optim, optim_ppm, alphabet_size, train_corpus, forget, xtol_abs)
+    map(ppm_optim, 
+        optim_ppm, alphabet_size, train_corpus,
+        forget, xtol_abs, metric, progress)
   
   all_par <- c(list(Original = new_ppm_par()), optim_par)
   stopifnot(is.list(all_par) & length(all_par) == 1 + length(optim_par))
   
-  test_corpus <-  with_log("Generating test corpus...", 
-                           generate_corpus(corpus_opt))
+  test_corpus <-  with_log("Generating test corpus...", corpus_generator())
   
   with_log("Evaluating models...", {
-    map(all_par, eval_ppm_mod, test_corpus, forget, alphabet_size) %>% 
+    data <- map(all_par, eval_ppm_mod, test_corpus, forget, alphabet_size, metric, progress) %>% 
       bind_cols() %>% 
       add_column(seq_id = seq_along(test_corpus), .before = 1)
   })
+  
+  list(data = data,
+       par = all_par,
+       metric = metric)
 }
 
 
-eval_ppm_mod <- function(ppm_par, corpus, forget, alphabet_size) {
+eval_ppm_mod <- function(ppm_par, corpus, forget, alphabet_size, metric, progress) {
+  stopifnot(metric %in% c("incorrect", "information_content"))
+  if (ppm_par[["ltm_asymptote"]] > 
+      ppm_par[["ltm_weight"]])
+    return(rep(as.numeric(NA), 
+               times = length(corpus)))
+  
   new_mod <- function() new_ppm_decay(alphabet_size = alphabet_size, 
                                       order_bound = ppm_par[["order_bound"]],
                                       ltm_weight = ppm_par[["ltm_weight"]], 
                                       ltm_half_life = ppm_par[["ltm_half_life"]],
+                                      ltm_asymptote = ppm_par[["ltm_asymptote"]],
                                       stm_weight = ppm_par[["stm_weight"]], 
                                       stm_duration = ppm_par[["stm_duration"]])
   
   mod <- new_mod()
-  
-  map_dbl(corpus, function(x) {
+  res <- rep(as.numeric(NA), times = length(corpus))
+  if (progress) pb <- utils::txtProgressBar(max = length(corpus), style = 3)
+    
+  for (i in seq_along(corpus)) {
     if (forget) mod <- new_mod()
-    model_seq(mod, 
-              seq = x$symbol,
-              time = seq_along(x$symbol),
-              return_distribution = TRUE, 
-              return_entropy = FALSE) %>% 
+    x <- corpus[[i]]
+    res[i] <-
+      model_seq(mod, 
+                seq = x$symbol,
+                time = x$time,
+                return_distribution = TRUE, 
+                return_entropy = FALSE) %>% 
       mutate(correct = map2_lgl(symbol, distribution, ~ .x == which.max(.y)),
              incorrect = !correct) %>% 
-      pull(incorrect) %>% 
+      pull(!!metric) %>% 
       mean()
-  })
+    if (progress) utils::setTxtProgressBar(pb, i)
+  }
+  if (progress) close(pb)
+  res
 }
 
 with_log <- function(msg, expr) {
@@ -295,21 +348,69 @@ with_log <- function(msg, expr) {
   x
 }
 
-plot_exp <- function(exp) {
-  conditions <- setdiff(names(exp), "seq_id")
+plot_exp <- function(exp, alpha = 1, linetype = "dashed") {
+  conditions <- setdiff(names(exp$data), "seq_id")
   cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
-  exp %>% 
-    gather(key = "condition", value = "error_rate", - seq_id) %>%
-    mutate(accuracy = 1 - error_rate,
+  stopifnot(exp$metric %in% c("incorrect", "information_content"))
+  exp$data %>% 
+    gather(key = "condition", value = "score", - seq_id) %>%
+    mutate(score = if (exp$metric == "incorrect") 1 - score else score,
            condition = factor(condition, levels = conditions)) %>%
-    ggplot(aes(x = condition, y = accuracy)) + 
+    ggplot(aes_string(x = "condition", y = "score")) +
     geom_boxplot(outlier.shape = NA, 
                  width = 0.3, size = 1.25, 
-                 fatten = 1.5, colour="grey70") + 
+                 fatten = 1.5, colour = "grey70") + 
     geom_point(colour = cols[1], shape = 21) +
-    geom_line(aes(group = seq_id), alpha = 1, linetype = "dashed", colour = cols[1]) + 
-    scale_x_discrete(NULL) + 
-    scale_y_continuous("Accuracy") +
+    geom_line(aes(group = seq_id), alpha = alpha, linetype = linetype, colour = cols[1]) + 
+    scale_x_discrete(NULL) +
+    scale_y_continuous(
+      if (exp$metric == "incorrect") 
+        "Accuracy" else if (exp$metric == "information_content")
+          "Cross entropy (bits)"else stop()
+    ) +
     theme(legend.position = "none",
           aspect.ratio = 1)
+}
+
+plot_exp_2 <- function(exp) {
+  conditions <- setdiff(names(exp$data), c("seq_id", "Original"))
+  cols <- viridis::viridis(n = 2, begin = 0.4, end = 1)
+  stopifnot(exp$metric %in% c("incorrect", "information_content"))
+  x_lab <- sprintf(
+    "Relative %s",
+    if (exp$metric == "incorrect") 
+    "accuracy" else if (exp$metric == "information_content")
+      "cross entropy (bits)"else stop()
+  )
+  exp$data %>% 
+    pmap(function(...) {
+      args <- list(...)
+      tibble(seq_id = args$seq_id,
+             condition = conditions,
+             relative_score = map_dbl(conditions, ~ args[[.]] - args$Original))
+    }) %>% 
+    bind_rows() %>% 
+    ggplot(aes(x = relative_score, y = condition)) + 
+    scale_x_continuous(x_lab) +
+    scale_y_discrete("Condition") +
+    ggridges::stat_density_ridges(quantile_lines = TRUE, quantiles = 2) +
+    geom_vline(xintercept = 0, linetype = "dashed")
+  
+}
+
+get_harmony_corpus <- function(id) {
+  stopifnot(id %in% c("classical_1", "popular_1", "jazz_1"))
+  input <- hcorp::get_corpus(id)
+  alphabet <- input %>% do.call(c, .) %>% unique() %>% sort()
+  seq_lengths <- purrr::map_int(input, length)
+  seq_times <- cumsum(c(0L, seq_lengths))[- length(input)]
+  corpus <- input %>% 
+    map(~ as.integer(factor(.), levels = alphabet)) %>% 
+    map2(., seq_times, function(sequence, start_time) {
+      tibble(id = seq_along(sequence),
+             time = seq(from = start_time, length.out = length(sequence)),
+             symbol = sequence)
+    })
+  list(alphabet = alphabet,
+       corpus = corpus)
 }

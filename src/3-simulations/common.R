@@ -192,6 +192,7 @@ optim_ppm <- function(ppm,
                       ftol_rel,
                       metric,
                       progress,
+                      allow_repeats,
                       max_eval = 500,
                       ran_seed = 1) {
   stopifnot(!anyDuplicated(ppm$which_optim),
@@ -208,7 +209,8 @@ optim_ppm <- function(ppm,
                          forget = forget,
                          alphabet_size = alphabet_size,
                          metric = metric,
-                         progress = progress) %>% mean()
+                         progress = progress,
+                         allow_repeats = allow_repeats) %>% mean()
     flog.info("i = %i, par = [%s], cost = %.5f...", 
               counter,
               sprintf("%.3f", par) %>% paste(collapse = ", "), 
@@ -254,7 +256,8 @@ run_exp <- function(ppm_optim,
                     forget = TRUE,
                     ftol_rel = 1e-4,
                     metric = "incorrect",
-                    progress = FALSE) {
+                    progress = FALSE,
+                    allow_repeats = TRUE) {
   stopifnot(!any(names(ppm_optim) %in% c("Original", "seq_id")))
   
   train_corpus <- with_log("Generating training corpus...", corpus_generator())
@@ -262,7 +265,8 @@ run_exp <- function(ppm_optim,
   optim_par <- 
     map(ppm_optim, 
         optim_ppm, alphabet_size, train_corpus,
-        forget, ftol_rel, metric, progress)
+        forget, ftol_rel, metric, progress,
+        allow_repeats)
   
   all_par <- c(list(Original = new_ppm_par()), optim_par)
   stopifnot(is.list(all_par) & length(all_par) == 1 + length(optim_par))
@@ -270,7 +274,9 @@ run_exp <- function(ppm_optim,
   test_corpus <-  with_log("Generating test corpus...", corpus_generator())
   
   with_log("Evaluating models...", {
-    data <- map(all_par, eval_ppm_mod, test_corpus, forget, alphabet_size, metric, progress) %>% 
+    data <- map(all_par, eval_ppm_mod,
+                test_corpus, forget, 
+                alphabet_size, metric, progress, allow_repeats) %>% 
       bind_cols() %>% 
       add_column(seq_id = seq_along(test_corpus), .before = 1)
   })
@@ -285,7 +291,8 @@ run_exp <- function(ppm_optim,
 }
 
 
-eval_ppm_mod <- function(ppm_par, corpus, forget, alphabet_size, metric, progress) {
+eval_ppm_mod <- function(ppm_par, corpus, forget, alphabet_size, metric,
+                         progress, allow_repeats) {
   stopifnot(metric %in% c("incorrect", "information_content"))
   if (ppm_par[["ltm_asymptote"]] > 
       ppm_par[["ltm_weight"]])
@@ -314,13 +321,32 @@ eval_ppm_mod <- function(ppm_par, corpus, forget, alphabet_size, metric, progres
                 return_distribution = TRUE, 
                 return_entropy = FALSE) %>% 
       mutate(correct = map2_lgl(symbol, distribution, ~ .x == which.max(.y)),
-             incorrect = !correct) %>% 
+             incorrect = !correct,
+             information_content = if (allow_repeats) 
+               information_content else
+                 information_content_no_repeats(symbols = symbol, 
+                                                distributions = distribution)
+      ) %>% 
       pull(!!metric) %>% 
       mean()
     if (progress) utils::setTxtProgressBar(pb, i)
   }
   if (progress) close(pb)
   res
+}
+
+information_content_no_repeats <- function(symbols, distributions) {
+  prev_symbols <- c(as.integer(NA), symbols[- length(symbols)])
+  list(
+    symbol = symbols,
+    prev_symbol = prev_symbols,
+    distribution = distributions
+  ) %>%
+    pmap_dbl(function(symbol, prev_symbol, distribution) {
+      distribution[prev_symbol] <- 0
+      probability <- distribution[symbol] / sum(distribution)
+      - log2(probability)
+    })
 }
 
 with_log <- function(msg, expr) {
@@ -426,10 +452,10 @@ get_harmony_corpus <- function(corpus, n = NA) {
   seq_lengths <- purrr::map_int(input, length)
   max_seq_length <- max(seq_lengths)
   ceil_max_seq_length <- 100 * ceiling(max_seq_length / 100)
-  inter_onset_interval <- 2 * ceil_max_seq_length
+  inter_onset_interval <- 60 * 60 * 24 # 1 day's worth of seconds
   seq_times <- seq(from = 0, by = inter_onset_interval, length.out = length(input))
   corpus <- input %>% 
-    map(~ as.integer(factor(.), levels = alphabet)) %>% 
+    map(~ as.integer(factor(., levels = alphabet))) %>% 
     map2(., seq_times, function(sequence, start_time) {
       tibble(id = seq_along(sequence),
              time = seq(from = start_time, length.out = length(sequence)),

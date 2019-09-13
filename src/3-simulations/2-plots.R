@@ -1,7 +1,8 @@
 library(tidyverse)
 
 source("src/3-simulations/common.R")
-theme_set(ggpubr::theme_pubr())
+theme_set(ggpubr::theme_pubr() + 
+            theme(strip.background = element_rect(fill = "white")))
 
 out_dir <- "output/simulations"
 
@@ -20,7 +21,18 @@ cowplot::plot_grid(
   ncol = 1,
   rel_heights = c(2, 1)
 )
-ggsave("exp-1.pdf", path = out_dir, width = 8.65, height = 7.85)
+ggsave("exp-1.png", path = out_dir, width = 8.65, height = 7.85, dpi = 300)
+
+
+exp_1$data %>% 
+  gather("key", "value", - seq_id) %>% 
+  group_by(key) %>% 
+  summarise(median(value))
+
+exp_1$data %>% 
+  mutate(diff = Original - `+ Decay`) %>% 
+  pull(diff) %>% 
+  median()
 
 
 exp_2 %>% 
@@ -28,5 +40,8 @@ exp_2 %>%
                           replace = c(`Popular` = "Popular music",
                                       `Jazz` = "Jazz music"),
                           warn_missing = FALSE)) %>% 
-  plot_multi_exp(trim_sd = 3)
-ggsave("exp-2.pdf", path = out_dir, width = 6, height = 7)
+  plot_multi_exp(trim_sd = 3) + 
+  theme(panel.spacing = unit(1.5, "lines"),
+        strip.text = element_text(size = 12, face = "bold"),
+        strip.background = element_rect(colour = "white"))
+ggsave("exp-2.png", path = out_dir, width = 6, height = 7)

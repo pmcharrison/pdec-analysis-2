@@ -25,8 +25,12 @@ exp_1 <-
   run_exp(alphabet_size = 5, 
           forget = TRUE, 
           ftol_rel = 1e-5, 
-          metric = "incorrect")
+          metric = "incorrect",
+          corpus_generator = function() generate_corpus(alphabet_size = 5,
+                                                        num_events = 2000),
+          progress = TRUE)
 plot_exp(exp_1)
+plot_exp_old(exp_1)
 saveRDS(exp_1, file.path(out_dir, "exp-1.rds"))
 
 # Corpus modelling - long-term learning is useful if there is 
@@ -34,7 +38,7 @@ saveRDS(exp_1, file.path(out_dir, "exp-1.rds"))
 # variation
 
 exp_2_ppm_optim <- list(
-  "+ Decay" = new_ppm_optim(
+  "Decay only" = new_ppm_optim(
     starting_par = new_ppm_par(stm_weight = 1, 
                                stm_duration = 0,
                                ltm_weight = 1, 
@@ -45,7 +49,7 @@ exp_2_ppm_optim <- list(
     optim_lower = c(0.0001),
     optim_higher = c(1e60)
   ),
-  "+ Long-term learning" = new_ppm_optim(
+  "Decay + long-term learning" = new_ppm_optim(
     starting_par = new_ppm_par(stm_weight = 1, 
                                stm_duration = 0,
                                ltm_weight = 1, 
@@ -75,7 +79,8 @@ exp_2_res <-
            forget = FALSE,
            metric = "information_content",
            progress = TRUE,
-           ftol_rel = 1e-3
+           ftol_rel = 1e-3,
+           allow_repeats = FALSE
          )
        }))
 

@@ -56,16 +56,17 @@ ppm_trial <- function(stim, alphabet_size, tone_len_ms, ppm_spec, alphabet) {
            symbol = factor(tone, levels = alphabet))
   ppm::new_ppm_decay(
     alphabet_size = length(alphabet),
-    order_bound = ppm_spec$order_bound,
     buffer_length_time = ppm_spec$buffer_time,
     buffer_length_items = ppm_spec$buffer_items,
     buffer_weight = ppm_spec$buffer_rate, 
+    stm_duration = ppm_spec$stm_duration,
+    stm_weight = ppm_spec$stm_rate,
+    ltm_half_life = ppm_spec$ltm_half_life,
+    ltm_weight = ppm_spec$ltm_rate,
+    noise = ppm_spec$noise,
+    order_bound = ppm_spec$order_bound,
     only_learn_from_buffer = ppm_spec$only_learn_from_buffer,
     only_predict_from_buffer = ppm_spec$only_predict_from_buffer,
-    stm_half_life = ppm_spec$stm_half_life, 
-    stm_weight = ppm_spec$stm_rate,
-    ltm_weight = ppm_spec$ltm_rate, 
-    noise = ppm_spec$noise
   ) %>% 
     ppm::model_seq(seq = stim$symbol, 
                    time = stim$time, 

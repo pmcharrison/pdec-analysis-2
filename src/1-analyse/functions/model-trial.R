@@ -33,6 +33,9 @@ model_trial <- function(trial,
   res
 }
 
+R.utils::mkdirs("~/Downloads/cache")
+model_trial <- memoise(model_trial, cache = cache_filesystem("~/Downloads/cache"))
+
 change_point_trial <- function(x, transition, alphabet_size, spec) {
   cp <- cpm::detectChangePoint(x, 
                                cpmType = spec$method, 
@@ -56,13 +59,13 @@ ppm_trial <- function(stim, alphabet_size, tone_len_ms, ppm_spec, alphabet) {
            symbol = factor(tone, levels = alphabet))
   ppm::new_ppm_decay(
     alphabet_size = length(alphabet),
-    buffer_length_time = ppm_spec$buffer_time,
-    buffer_length_items = ppm_spec$buffer_items,
-    buffer_weight = ppm_spec$buffer_rate, 
+    buffer_length_time = ppm_spec$buffer_length_time,
+    buffer_length_items = ppm_spec$buffer_length_items,
+    buffer_weight = ppm_spec$buffer_weight, 
     stm_duration = ppm_spec$stm_duration,
-    stm_weight = ppm_spec$stm_rate,
+    stm_weight = ppm_spec$stm_weight,
     ltm_half_life = ppm_spec$ltm_half_life,
-    ltm_weight = ppm_spec$ltm_rate,
+    ltm_weight = ppm_spec$ltm_weight,
     noise = ppm_spec$noise,
     order_bound = ppm_spec$order_bound,
     only_learn_from_buffer = ppm_spec$only_learn_from_buffer,

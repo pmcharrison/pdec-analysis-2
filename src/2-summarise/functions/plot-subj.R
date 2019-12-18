@@ -33,7 +33,7 @@ plot_subj_rt_diff <- function(summary_subj) {
     scale_x_discrete("Cycle length (tones)") +  
     scale_y_continuous("Relative response time (tones)") +
     scale_fill_manual("Tone length (ms)",
-                      values = c("#E8E410", "#11A3FF") %>% rev) +
+                      values = viridis::viridis(3)[2:3]) +
     scale_colour_manual("Tone length (ms)",
                         values = c("black", "black", "black")) +
     theme_classic() +
@@ -63,7 +63,7 @@ plot_d_prime <- function(summary_subj, xlab) {
     scale_x_discrete(if (xlab) "Cycle length (tones)" else "") +  
     scale_y_continuous("Sensitivity (d')") +
     scale_fill_manual("Tone length (ms)",
-                      values = c("#E8E410", "#11A3FF", "#B50000") %>% rev) +
+                      values = viridis::viridis(3)) +
     scale_colour_manual("Tone length (ms)",
                         values = c("black", "black", "black")) +
     theme_classic() +
@@ -94,7 +94,8 @@ plot_subj_rt <- function(summary_subj, xlab = TRUE) {
     scale_x_discrete(if (xlab) "Cycle length (tones)" else "") +  
     scale_y_continuous("Response time (tones)") +
     scale_fill_manual("Tone length (ms)",
-                      values = c("#E8E410", "#11A3FF", "#B50000") %>% rev) +
+                      values = viridis::viridis(3)) +
+                      # values = c("#E8E410", "#11A3FF", "#B50000") %>% rev) +
     scale_colour_manual("Tone length (ms)",
                         values = c("black", "black", "black")) +
     theme_classic() +

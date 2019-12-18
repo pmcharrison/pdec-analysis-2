@@ -76,7 +76,7 @@ plot_trials <- function(dat_response) {
     scale_x_discrete("Cycle length (tones)") +  
     scale_y_continuous("Response time (tones)") +
     scale_fill_manual("Tone length (ms)",
-                      values = c("#E8E410", "#11A3FF", "#B50000") %>% rev) +
+                      values = viridis::viridis(3)) +
     theme_classic() +
     theme(aspect.ratio = 1,
           panel.grid.major = element_line(colour = "lightgrey"))

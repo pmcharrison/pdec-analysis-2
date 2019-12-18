@@ -7,6 +7,7 @@ plot_example_trial <- function(x) {
 }
 
 plot.trial_analysis <- function(x, lag = TRUE, ...) {
+  palette <- viridis::viridis_pal(end = 0.7)(2)
   p <- x$profile %>% 
     mutate(cp_stat = x$change_point$statistic,
            freq = x$info$alphabet[symbol],
@@ -21,7 +22,7 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
                                
     )) %>% 
     ggplot(aes(x = pos, y = value)) +
-    geom_point(size = 1, colour = "navy") + 
+    geom_point(size = 1, colour = palette[1]) + 
     scale_x_continuous("Tone number", 
                        sec.axis = sec_axis(~ spline(x$profile$pos,
                                                     x$profile$time,
@@ -65,9 +66,9 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
                                                 `Detection of transition` = "dotted"),
                                  guide = guide_legend(reverse = TRUE, 
                                                       label.position = "bottom"))
-  p <- p + scale_colour_manual("", values = c(`Nominal transition` = "darkred",
-                                              `Effective transition` = "darkred",
-                                              `Detection of transition` = "darkred"),
+  p <- p + scale_colour_manual("", values = c(`Nominal transition` = palette[2],
+                                              `Effective transition` = palette[2],
+                                              `Detection of transition` = palette[2]),
                                guide = guide_legend(reverse = TRUE,
                                                     label.position = "bottom"))
   p

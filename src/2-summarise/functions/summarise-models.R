@@ -74,7 +74,7 @@ plot_model <- function(summary_model, summary_subj, ...) {
         scale_x_discrete(if (plot_group == "b") "Cycle length (tones)" else "") +
         scale_y_continuous("Response time (tones)") +
         scale_fill_manual("Tone length (ms)",
-                          values = c("#E8E410", "#11A3FF", "#B50000") %>% rev,
+                          values = viridis::viridis(3),
                           guide = if (plot_group == "a") "legend" else FALSE) +
         # scale_shape_manual("", values = 21) +
         # scale_linetype_discrete("", guide = guide_legend(override.aes = list(

@@ -466,7 +466,8 @@ get_harmony_corpus <- function(corpus, n = NA) {
        max_seq_length = max_seq_length,
        ceil_max_seq_length = ceil_max_seq_length,
        inter_onset_interval = inter_onset_interval,
-       names = map_chr(input, ~ hrep::metadata(.)$description))
+       names = map_chr(input, ~ hrep::metadata(.)$description),
+       original_corpus = input)
 }
 
 plot_markov_model_series <- function(alphabet_size = 5, 
@@ -491,3 +492,27 @@ plot_markov_model_series <- function(alphabet_size = 5,
   })
 }
 
+summarise_exp_2_corpora <- function(x) {
+  map(x, summarise_exp_2_corpus)
+}
+
+summarise_exp_2_corpus <- function(x, chords = 1:8) {
+  # voiced <- voicer::voice(x$original_corpus[[1]])
+  
+  
+  view <- function(chords_per_line = 10,
+                   staff_width = 600) {
+    message("Viewing an extract of the first composition in the corpus, ",
+            x$names[1])
+    hrep::view(x$original_corpus[[1]][chords],
+               annotate = x$corpus[[1]]$symbol[chords],
+               chords_per_line = chords_per_line,
+               staff_width = staff_width)
+  }
+  list(
+    view = view,
+    num_sequences = length(x$original_corpus),
+    total_num_symbols = hrep::num_elements(x$original_corpus),
+    num_unique_symbols = length(x$alphabet)
+  )
+}

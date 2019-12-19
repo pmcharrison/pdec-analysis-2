@@ -66,7 +66,14 @@ exp_2_corpora <- list(
   Popular = get_harmony_corpus(hcorp::popular_1, n = 100),
   Jazz = get_harmony_corpus(hcorp::jazz_1, n = 100),
   `Bach chorales` = get_harmony_corpus(hcorp::classical_1[1:370], n = 100)
-) 
+)
+
+exp_2_corpus_summaries <- summarise_exp_2_corpora(exp_2_corpora)
+if (FALSE) {
+  exp_2_corpus_summaries$Popular$view()
+  exp_2_corpus_summaries$Jazz$view()
+  exp_2_corpus_summaries$`Bach chorales`$view()
+}
 
 flog.info("Conducting experiment 2 simulations...")
 exp_2_res <- 

@@ -8,16 +8,13 @@ library(beepr)
 loadNamespace("cpm")
 loadNamespace("R.utils")
 loadNamespace("plyr")
-theme_set(theme_classic())
+theme_set(ggpubr::theme_pubr())
 
 for (f in list.files("src/1-analyse/functions/", full.names = TRUE))
   source(f)
 
 dat <- readRDS("output/dat-response.rds")
 
-# For a faster approximation, set downsample = 20 and fake_tone_len_ms = TRUE.
-
-# res <- model(dat, 100, fake_tone_len_ms = TRUE)
 res <- model(dat)
 
 saveRDS(res, "output/dat-analysis.rds")

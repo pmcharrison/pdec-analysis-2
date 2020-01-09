@@ -27,10 +27,10 @@ p_example_trial <- plot_example_trial(dat_analysis)
 #                                  labels = "AUTO")
 # ggsave(plot = p_combined, filename = "output/by-cond.pdf", width = 6.5, height = 8)
 
-ggsave(plot = p_subj, filename = "output/behavioral.png", width = 4.75, height = 8, dpi = 300)
-ggsave(plot = p_model, filename = "output/model-results.png", width = 6, height = 6, dpi = 300)
+ggsave(plot = p_subj, filename = "output/behavioral.pdf", width = 4.75, height = 8, dpi = 300)
+ggsave(plot = p_model, filename = "output/model-results.pdf", width = 6, height = 6, dpi = 300)
 
-ggsave(plot = p_example_trial, filename = "output/example-trial.png", width = 5.5, height = 5.5, dpi = 300)
+ggsave(plot = p_example_trial, filename = "output/example-trial.pdf", width = 5.5, height = 5.5, dpi = 300)
 
 summary_subj %>% saveRDS("output/summary-subj.rds")
 summary_model %>% select(- lag_tones ) %>% write_csv("output/summary-model.csv")

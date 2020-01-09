@@ -79,9 +79,10 @@ plot_model <- function(summary_model, summary_subj, ...) {
         # scale_shape_manual("", values = 21) +
         # scale_linetype_discrete("", guide = guide_legend(override.aes = list(
         #   fill = "white"))) +
-        theme_classic() +
-        theme(aspect.ratio = 1,
-              panel.grid.major = element_line(colour = "lightgrey"))
+        # theme_classic() +
+        ggpubr::theme_pubr() +
+        theme(aspect.ratio = 1)
+              # panel.grid.major = element_line(colour = "lightgrey"))
     }) %>% 
     cowplot::plot_grid(plotlist = ., ncol = 1, labels = "AUTO")
 }

@@ -36,9 +36,10 @@ plot_subj_rt_diff <- function(summary_subj) {
                       values = viridis::viridis(3)[2:3]) +
     scale_colour_manual("Tone length (ms)",
                         values = c("black", "black", "black")) +
-    theme_classic() +
+    ggpubr::theme_pubr() +
     theme(aspect.ratio = 1,
-          panel.grid.major = element_line(colour = "lightgrey"))
+          legend.position = "right")
+          # panel.grid.major = element_line(colour = "lightgrey"))
 }
 
 plot_d_prime <- function(summary_subj, xlab) {
@@ -66,9 +67,10 @@ plot_d_prime <- function(summary_subj, xlab) {
                       values = viridis::viridis(3)) +
     scale_colour_manual("Tone length (ms)",
                         values = c("black", "black", "black")) +
-    theme_classic() +
+    ggpubr::theme_pubr() +
     theme(aspect.ratio = 1,
-          panel.grid.major = element_line(colour = "lightgrey"))
+          legend.position = "right")
+          # panel.grid.major = element_line(colour = "lightgrey"))
 }
 
 
@@ -98,7 +100,8 @@ plot_subj_rt <- function(summary_subj, xlab = TRUE) {
                       # values = c("#E8E410", "#11A3FF", "#B50000") %>% rev) +
     scale_colour_manual("Tone length (ms)",
                         values = c("black", "black", "black")) +
-    theme_classic() +
+    ggpubr::theme_pubr() +
     theme(aspect.ratio = 1,
-          panel.grid.major = element_line(colour = "lightgrey"))
+          legend.position = "right")
+          # panel.grid.major = element_line(colour = "lightgrey"))
 }

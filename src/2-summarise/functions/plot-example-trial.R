@@ -32,7 +32,7 @@ plot.trial_analysis <- function(x, lag = TRUE, ...) {
     scale_y_continuous("Value") +
     facet_wrap(~ var, ncol = 1, scales = "free_y") +
     # theme_bw() +
-    theme_classic() +
+    ggpubr::theme_pubr() +
     theme(panel.grid = element_blank(), 
           strip.background = element_rect(colour = "white"),
           strip.text = element_text(hjust = 0),

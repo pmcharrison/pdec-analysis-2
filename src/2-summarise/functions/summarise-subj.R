@@ -77,7 +77,7 @@ plot_trials <- function(dat_response) {
     scale_y_continuous("Response time (tones)") +
     scale_fill_manual("Tone length (ms)",
                       values = viridis::viridis(3)) +
-    theme_classic() +
-    theme(aspect.ratio = 1,
-          panel.grid.major = element_line(colour = "lightgrey"))
+    ggpubr::theme_pubr() +
+    theme(aspect.ratio = 1)
+          # panel.grid.major =element_line(colour = "lightgrey"))
 }

@@ -45,3 +45,4 @@ exp_2 %>%
         strip.text = element_text(size = 12, face = "bold"),
         strip.background = element_rect(colour = "white"))
 ggsave("exp-2.png", path = out_dir, width = 6, height = 7)
+ggsave("exp-2.pdf", path = out_dir, width = 6, height = 7)

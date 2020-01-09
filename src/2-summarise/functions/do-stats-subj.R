@@ -39,7 +39,7 @@ get_condition_differences <- function(raw) {
 
 get_interaction <- function(x) {
   df <- c(alph_10 = 10,
-    alph_20 = 20) %>% 
+          alph_20 = 20) %>% 
     map(function(alph_size) 
       filter(x, tone_len_ms == 75 & alphabet_size == alph_size))
   stopifnot(!anyDuplicated(df[[1]]$subj),

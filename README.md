@@ -50,9 +50,9 @@ install.packages(c(
  'viridis',
  'withr'
 ))
-devtools::install_github("pmcharrison/ppm")
-devtools::install_github("pmcharrison/hrep")
-devtools::install_github("pmcharrison/hcorp")
+devtools::install_github("pmcharrison/ppm@v0.1.1")
+devtools::install_github("pmcharrison/hrep@v0.11.0")
+devtools::install_github("pmcharrison/hcorp@v0.6.2")
 ```
 
 ## Usage

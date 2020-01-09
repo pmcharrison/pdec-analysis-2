@@ -42,7 +42,6 @@ install.packages(c(
  'purrr',
  'R.utils',
  'readr',
- 'shiny',
  'testthat',
  'tibble',
  'tidyr',

@@ -31,6 +31,15 @@ devtools::install_github("pmcharrison/hrep@v0.11.0")
 devtools::install_github("pmcharrison/hcorp@v0.6.2")
 ```
 
+If an error occurs during this process, try installing the problematic package
+individually with `install.packages` or `devtools::install_github`, as
+appropriate.
+
+If any other required packages are missing from your installation, R will throw
+a corresponding error when you try to run the analysis scripts. You can install
+any such missing packages with the `install.packages` function, passing the name
+of the missing package.
+
 ## Usage
 
 a) Open this R project by opening `pdec-analysis-2.proj` in RStudio.

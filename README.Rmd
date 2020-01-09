@@ -42,6 +42,10 @@ of the missing package.
 
 ## Usage
 
+The repository comes by default with the generated output files
+saved in `output/`. You should be able to delete this directory
+and regenerate it using the following steps:
+
 a) Open this R project by opening `pdec-analysis-2.proj` in RStudio.
 b) Compile the behavioral response data by running `src/0-compile/0-compile.R` in R.
 c) Conduct the behavioral modeling by running `src/1-analyse/1-analyse.R` in R.

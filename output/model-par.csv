@@ -1,0 +1,7 @@
+i,label,group,buffer_length_time,buffer_length_items,buffer_weight,stm_duration,stm_weight,ltm_half_life,ltm_weight,noise,order_bound,only_learn_from_buffer,only_predict_from_buffer
+1,"L4, no decay",Original PPM,0,0,0,0,1,999999,1,0,4,FALSE,FALSE
+2,L4 + exp.decay,`+ Exponential decay,0,0,0,0,1,0.26,1,0,4,FALSE,FALSE
+3,L4 + retrieval noise,`+ Retrieval noise,0,0,0,0,1,1.65,0.65,0.5,4,FALSE,FALSE
+4,L4 + buffer 5,`5-item buffer,1000,5,2,0,1,1.45,0.7,0.5,4,TRUE,TRUE
+5,L4 + buffer 10,`10-item buffer,1000,10,1.5,0,1,1.9,0.4,0.35,4,TRUE,TRUE
+6,L4 + buffer 15,`15-item buffer,1000,15,1,0,1,3.5,0.6,0.8,4,TRUE,TRUE

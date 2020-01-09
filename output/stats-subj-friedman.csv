@@ -1,0 +1,3 @@
+alphabet_size,statistic,p.value,parameter,method
+10,7.913043478260869,0.019129536225545023,2,Friedman rank sum test
+20,11.043478260869565,0.0039988873044999726,2,Friedman rank sum test

@@ -65,6 +65,10 @@ scripts. You can install any such missing packages with the
 
 ## Usage
 
+The repository comes by default with the generated output files saved in
+`output/`. You should be able to delete this directory and regenerate it
+using the following steps:
+
 1)  Open this R project by opening `pdec-analysis-2.proj` in RStudio.
 2)  Compile the behavioral response data by running
     `src/0-compile/0-compile.R` in R.

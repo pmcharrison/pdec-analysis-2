@@ -1,0 +1,16 @@
+group_2,group_1,statistic,p.value,method,alternative,alphabet_size_1,tone_len_ms_1,alphabet_size_2,tone_len_ms_2
+2,1,216,0.016311168670654293,Wilcoxon signed rank test,two.sided,10,25,10,50
+3,1,198,0.06981706619262694,Wilcoxon signed rank test,two.sided,10,25,10,75
+3,2,112,0.4452004432678222,Wilcoxon signed rank test,two.sided,10,50,10,75
+4,1,0,2.3841857910156245e-7,Wilcoxon signed rank test,two.sided,10,25,20,25
+4,2,0,2.3841857910156245e-7,Wilcoxon signed rank test,two.sided,10,50,20,25
+4,3,0,2.3841857910156245e-7,Wilcoxon signed rank test,two.sided,10,75,20,25
+5,1,0,2.3841857910156245e-7,Wilcoxon signed rank test,two.sided,10,25,20,50
+5,4,115,0.5009052753448485,Wilcoxon signed rank test,two.sided,20,25,20,50
+5,2,0,2.3841857910156245e-7,Wilcoxon signed rank test,two.sided,10,50,20,50
+5,3,0,2.3841857910156245e-7,Wilcoxon signed rank test,two.sided,10,75,20,50
+6,1,0,2.3841857910156245e-7,Wilcoxon signed rank test,two.sided,10,25,20,75
+6,3,0,2.3841857910156245e-7,Wilcoxon signed rank test,two.sided,10,75,20,75
+6,2,0,2.3841857910156245e-7,Wilcoxon signed rank test,two.sided,10,50,20,75
+6,4,50,0.006032705307006835,Wilcoxon signed rank test,two.sided,20,25,20,75
+6,5,30,4.75168228149414e-4,Wilcoxon signed rank test,two.sided,20,50,20,75

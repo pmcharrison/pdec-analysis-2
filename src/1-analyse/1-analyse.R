@@ -1,3 +1,5 @@
+checkpoint::checkpoint("2019-12-01")
+
 library(tidyverse)
 library(checkmate)
 library(futile.logger)

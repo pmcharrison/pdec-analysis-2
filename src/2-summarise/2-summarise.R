@@ -5,6 +5,7 @@ for (f in list.files("src/2-summarise/functions", full.names = TRUE))
   source(f)
 
 dat_analysis <- readRDS("output/dat-analysis.rds")
+dat_sensitivity <- readRDS("output/sensitivity-datasets.rds")
 dat_response <- readRDS("output/dat-response.rds")
 
 model_misses <- tabulate_model_misses(dat_analysis)
@@ -14,6 +15,16 @@ write_csv(model_misses, "output/model-misses.csv")
 
 summary_subj <- summarise_subj(dat_response)
 summary_model <- summarise_models(dat_analysis)
+
+model_fits <- get_model_fits(summary_model, summary_subj)
+sensitivity_fits <- get_model_fits(summarise_models(dat_sensitivity), summary_subj)
+
+# Compare ICC for optimised dataset versus perturbed dataset
+model_fits$icc[6]
+mean(sensitivity_fits$icc)
+# Same for Pearson correlation
+model_fits$cor_pearson[6]
+mean(sensitivity_fits$cor_pearson)
 
 p_trials <- plot_trials(dat_response)
 p_subj <- plot_subj(summary_subj)

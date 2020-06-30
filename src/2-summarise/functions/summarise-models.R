@@ -27,6 +27,18 @@ exclude_invalid_lags <- function(x) {
   x[!is_lag_invalid(x)]
 }
 
+get_model_fits <- function(summary_model, summary_subj) {
+  summary_model %>% 
+    select(i, alphabet_size, tone_len_ms, model_output = mean) %>% 
+    left_join(summary_subj$cond_means %>% select(alphabet_size, tone_len_ms, ground_truth = mean),
+              by = c("alphabet_size", "tone_len_ms")) %>% 
+    group_by(i) %>% 
+    summarise(cor_pearson = cor(model_output, ground_truth, method = "pearson"),
+              cor_spearman = cor(model_output, ground_truth, method = "spearman"),
+              icc = irr::icc(matrix(c(model_output, ground_truth), nrow = length(model_output), ncol = 2),
+                             model = "oneway", type = "agreement", unit = "single")$value)
+}
+
 plot_model <- function(summary_model, summary_subj, ...) {
   d1 <- summary_model %>% 
     mutate(

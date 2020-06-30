@@ -24,6 +24,9 @@ model_condition <- function(alphabet_size, tone_len_ms, dat,
   })
 }
 
+R.utils::mkdirs("~/Downloads/cache")
+model_condition <- memoise(model_condition, cache = cache_filesystem("~/Downloads/cache"))
+
 print.condition_analysis <- function(x, ...) {
   cat(
     "An object of class 'condition_analysis':\n",

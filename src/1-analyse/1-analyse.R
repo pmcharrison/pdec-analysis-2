@@ -21,7 +21,7 @@ dat <- readRDS("output/dat-response.rds")
 res <- model(dat)
 saveRDS(res, "output/dat-analysis.rds")
 
-sensitivity_datasets <- get_sensitivity_datasets(dat, n = 6, sd_rel = 0.15)
+sensitivity_datasets <- get_sensitivity_datasets(dat, n = 100, sd_rel = 0.15)
 saveRDS(sensitivity_datasets, "output/sensitivity-datasets.rds")
 
 beep(4)

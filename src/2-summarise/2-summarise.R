@@ -1,3 +1,6 @@
+library(checkpoint)
+checkpoint("2019-12-01")
+
 library(magrittr)
 library(tidyverse)
 
@@ -15,9 +18,10 @@ write_csv(model_misses, "output/model-misses.csv")
 
 summary_subj <- summarise_subj(dat_response)
 summary_model <- summarise_models(dat_analysis)
+summary_sensitivity <- summarise_models(dat_sensitivity)
 
 model_fits <- get_model_fits(summary_model, summary_subj)
-sensitivity_fits <- get_model_fits(summarise_models(dat_sensitivity), summary_subj)
+sensitivity_fits <- get_model_fits(summary_sensitivity, summary_subj)
 
 # Compare ICC for optimised dataset versus perturbed dataset
 model_fits$icc[6]

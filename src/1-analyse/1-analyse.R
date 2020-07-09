@@ -1,11 +1,11 @@
 library(checkpoint)
 checkpoint("2019-12-01")
 
+library(glue)
 library(tidyverse)
 library(checkmate)
 library(futile.logger)
 library(memoise)
-library(glue)
 library(withr)
 library(beepr)
 loadNamespace("cpm")
@@ -22,6 +22,8 @@ res <- model(dat)
 saveRDS(res, "output/dat-analysis.rds")
 
 sensitivity_datasets <- get_sensitivity_datasets(dat, n = 100, sd_rel = 0.15)
+sensitivity_datasets$res <- map(sensitivity_datasets$res, select, - detail)
+
 saveRDS(sensitivity_datasets, "output/sensitivity-datasets.rds")
 
 beep(4)

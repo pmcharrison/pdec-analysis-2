@@ -2,8 +2,11 @@ summarise_models <- function(y) {
   res <- map(seq_len(nrow(y)),
       ~ cbind(y[., ] %>% select(- res),
               y$res[[.]]) %>% as_tibble) %>% 
-    bind_rows() %>% 
-    select(- detail) %>% 
+    bind_rows()
+  
+  res$detail <- NULL
+  
+  res <- res %>% 
     mutate(
       error_count = map_int(lag_tones, ~ sum(is_lag_invalid(.))),
       mean = map_dbl(lag_tones, ~ mean(exclude_invalid_lags(.))),

@@ -30,6 +30,12 @@ mean(sensitivity_fits$icc)
 model_fits$cor_pearson[6]
 mean(sensitivity_fits$cor_pearson)
 
+saveRDS(
+  list(model_fits = model_fits, 
+       sensitivity_fits = sensitivity_fits),
+  "output/sensitivity-analysis.rds"
+)
+
 p_trials <- plot_trials(dat_response)
 p_subj <- plot_subj(summary_subj)
 p_model <- plot_model(summary_model, summary_subj)
